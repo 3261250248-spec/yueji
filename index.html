@@ -1814,11 +1814,13 @@ function openSettings(){
       '<p style="font-weight:600;margin-bottom:6px">数据管理</p>'+
       '<p class="sub" style="margin-bottom:14px">共 '+state.books.length+' 部作品，存储于浏览器本地。</p>'+
       '<button class="btn btn-ghost" id="export-btn" style="width:100%;justify-content:center;margin-bottom:8px">导出 JSON 备份</button>'+
+      '<button class="btn btn-ghost" id="import-btn" style="width:100%;justify-content:center;margin-bottom:8px">导入 JSON 备份</button>'+
       '<button class="btn btn-danger" id="clear-btn" style="width:100%;justify-content:center">清空所有数据</button>'+
       '</div>',
     onConfirm:function(){}
   });
   var ex=document.getElementById('export-btn'); if(ex) ex.addEventListener('click', exportData);
+  var im=document.getElementById('import-btn'); if(im) im.addEventListener('click', importData);
   var cl=document.getElementById('clear-btn');
   if(cl) cl.addEventListener('click', function(){
     closeModal();
@@ -1832,10 +1834,65 @@ function openSettings(){
   });
 }
 function exportData(){
-  var blob = new Blob([JSON.stringify(state.books,null,2)], {type:'application/json'});
+  var backup = {
+    version: '2.0',
+    exportDate: todayStr(),
+    app: '阅记',
+    books: state.books,
+    shelfOrder: state.shelfOrder
+  };
+  var blob = new Blob([JSON.stringify(backup,null,2)], {type:'application/json'});
   var url = URL.createObjectURL(blob);
   var a=document.createElement('a'); a.href=url; a.download='yueji-backup-'+todayStr()+'.json'; a.click();
-  URL.revokeObjectURL(url); toast('已导出备份','success');
+  URL.revokeObjectURL(url); toast('已导出 '+state.books.length+' 部作品的备份','success');
+}
+function importData(){
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      try {
+        var data = JSON.parse(ev.target.result);
+        var books, shelfOrder;
+        if(Array.isArray(data)){
+          books = data;
+        } else if(data && Array.isArray(data.books)){
+          books = data.books;
+          shelfOrder = data.shelfOrder;
+        } else {
+          toast('文件格式不正确','warn'); return;
+        }
+        closeModal();
+        setTimeout(function(){
+          openConfirm({
+            title:'导入备份',
+            body:'将覆盖当前 '+state.books.length+' 部作品，导入 '+books.length+' 部作品。当前数据将被替换，确定？',
+            confirmText:'确认导入', danger:true,
+            onConfirm:function(){
+              state.books = books;
+              if(Array.isArray(shelfOrder) && shelfOrder.length===SHELF_ORDER.length){
+                var valid = SHELF_ORDER.every(function(k){ return shelfOrder.indexOf(k)>=0; });
+                if(valid){ state.shelfOrder = shelfOrder; saveShelfOrder(); }
+              }
+              save();
+              try{ localStorage.setItem('yueji.initialized','1'); }catch(e){}
+              renderShelves();
+              if(state.view==='stats') renderStats();
+              toast('已导入 '+books.length+' 部作品','success');
+            }
+          });
+        },40);
+      } catch(err){
+        toast('文件解析失败，请检查文件格式','warn');
+      }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
 }
 
 /* ---------- Toast ---------- */
