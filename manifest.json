@@ -1,0 +1,17 @@
+{
+  "name": "阅记 · 我的阅读追踪",
+  "short_name": "阅记",
+  "description": "记录书籍、影视、动漫、漫画的阅读/观看进度",
+  "start_url": "./book-tracker.html",
+  "display": "standalone",
+  "background_color": "#F7F3F0",
+  "theme_color": "#F7F3F0",
+  "icons": [
+    {
+      "src": "./apple-touch-icon.jpg",
+      "sizes": "180x180",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
