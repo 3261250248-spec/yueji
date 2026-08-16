@@ -364,11 +364,28 @@ main{max-width:1280px;margin:0 auto;padding:30px 28px 90px}
 .empty .empty-hint{font-size:12px;color:var(--muted2);margin-top:3px}
 
 /* ---------- Shelves Layout (sidebar + content) ---------- */
-.shelves-layout{display:flex;gap:24px;align-items:flex-start}
+.shelves-layout{display:flex;gap:0;align-items:flex-start}
 .media-sidebar{
   width:192px;flex-shrink:0;position:sticky;top:84px;
   display:flex;flex-direction:column;gap:10px;
+  margin-right:16px;
+  transition:width .3s ease,opacity .2s ease,margin-right .3s ease;
+  overflow:hidden;
 }
+.shelves-layout.sidebar-collapsed .media-sidebar{
+  width:0;opacity:0;margin-right:0;
+}
+.sidebar-toggle{
+  width:28px;flex-shrink:0;margin-right:16px;
+  position:sticky;top:calc(50vh - 14px);height:28px;
+  display:flex;align-items:center;justify-content:center;
+  border-radius:50%;background:var(--bg);
+  border:1px solid var(--rule-soft);
+  cursor:pointer;padding:0;color:var(--muted2);
+  transition:all .2s;z-index:5;opacity:.3;
+}
+.sidebar-toggle:hover{opacity:1;background:var(--bg2);color:var(--accent3);border-color:var(--accent3)}
+.sidebar-toggle svg{width:16px;height:16px}
 .ms-header{
   font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
   color:var(--muted2);padding:0 4px 8px;
@@ -686,12 +703,14 @@ body.is-dragging *{cursor:grabbing!important}
   .filter-bar{flex-wrap:wrap;gap:8px}
   .filter-bar .fb-count{margin-left:0;width:100%}
   .shelf-picker,.media-picker{grid-template-columns:repeat(2,1fr)}
-  .shelves-layout{gap:8px}
+  .shelves-layout{gap:0}
   .media-sidebar{
     width:30%;flex-shrink:0;position:sticky;top:56px;
     max-height:calc(100vh - 66px);overflow-y:auto;
-    -webkit-overflow-scrolling:touch;gap:8px;
+    -webkit-overflow-scrolling:touch;gap:8px;margin-right:8px;
   }
+  .sidebar-toggle{margin-right:8px;top:calc(50vh - 12px);height:24px;width:24px}
+  .sidebar-toggle svg{width:14px;height:14px}
   .ms-header{font-size:11px;padding:0 4px 6px}
   .ms-hint{display:none}
   .ms-item{padding:6px 4px;gap:4px}
@@ -1000,6 +1019,7 @@ console.log('阅记 v2.1 已加载');
 /* ---------- 常量 ---------- */
 var STORE_KEY = 'yueji.books.v2';
 var SHELF_ORDER_KEY = 'yueji.shelfOrder.v1';
+var SIDEBAR_KEY = 'yueji.sidebarCollapsed';
 
 /* 状态书架 */
 var SHELVES = {
@@ -1063,7 +1083,7 @@ var I = {
 };
 
 /* ---------- 状态 ---------- */
-var state = { books:[], view:'shelves', collapsed:{}, year:null, filterCat:null, filterMedia:null, filterShelf:null, filterAuthor:null, searchQ:'', shelfOrder:null, durationPeriod:'day', collapsedCharts:{} };
+var state = { books:[], view:'shelves', collapsed:{}, year:null, filterCat:null, filterMedia:null, filterShelf:null, filterAuthor:null, searchQ:'', shelfOrder:null, durationPeriod:'day', collapsedCharts:{}, sidebarCollapsed:false };
 var formCats = [];        /* 当前表单可用的类型池（按媒体类型） */
 var currentDraft = null;  /* 当前表单草稿对象 */
 
@@ -1097,8 +1117,10 @@ function load(){
     save();
     try{ localStorage.setItem('yueji.migrated_backward','1'); }catch(e){}
   }
+  try{ state.sidebarCollapsed = localStorage.getItem(SIDEBAR_KEY)==='1'; }catch(e){}
 }
 function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state.books)); }catch(e){} }
+function saveSidebarState(){ try{ localStorage.setItem(SIDEBAR_KEY, state.sidebarCollapsed?'1':'0'); }catch(e){} }
 
 function loadShelfOrder(){
   try{
@@ -1186,7 +1208,7 @@ function renderShelves(){
   var html = '';
 
   /* 左侧媒体分类（树状）+ 右侧内容 */
-  html += '<div class="shelves-layout">';
+  html += '<div class="shelves-layout'+(state.sidebarCollapsed?' sidebar-collapsed':'')+'">';
   html += '<aside class="media-sidebar">';
   html += '<div class="ms-header">分类</div>';
   /* 全部 */
@@ -1208,6 +1230,11 @@ function renderShelves(){
   });
   html += '<div class="ms-hint">长按拖动可排序</div>';
   html += '</aside>';
+
+  /* 分类栏展开/收起按钮 */
+  var chevronLeft = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+  var chevronRight = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+  html += '<button class="sidebar-toggle" data-act="toggle-sidebar" title="'+(state.sidebarCollapsed?'展开分类':'收起分类')+'">'+(state.sidebarCollapsed?chevronRight:chevronLeft)+'</button>';
 
   /* 右侧主内容 */
   html += '<div class="shelves-main">';
@@ -1457,6 +1484,19 @@ function bindEvents(){
       var author = t.getAttribute('data-author');
       state.filterAuthor = (state.filterAuthor===author) ? null : author;
       renderShelves(); return;
+    }
+    if(act==='toggle-sidebar'){
+      state.sidebarCollapsed = !state.sidebarCollapsed;
+      saveSidebarState();
+      var layout = document.querySelector('.shelves-layout');
+      if(layout){
+        layout.classList.toggle('sidebar-collapsed', state.sidebarCollapsed);
+        var cl = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+        var cr = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+        t.innerHTML = state.sidebarCollapsed ? cr : cl;
+        t.setAttribute('title', state.sidebarCollapsed ? '展开分类' : '收起分类');
+      }
+      return;
     }
 
     if(!id) return;
