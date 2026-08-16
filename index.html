@@ -2528,8 +2528,12 @@ function compressImage(file, maxDim, quality, callback){
     img.onload = function(){
       var canvas = document.createElement('canvas');
       var w = img.width, h = img.height;
-      if(w > h && w > maxDim){ h = h * maxDim / w; w = maxDim; }
-      else if(h > maxDim){ w = w * maxDim / h; h = maxDim; }
+      if(h / w > 2){
+        if(w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; }
+      } else {
+        if(w > h && w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; }
+        else if(h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; }
+      }
       canvas.width = w; canvas.height = h;
       var ctx = canvas.getContext('2d');
       ctx.drawImage(img, 0, 0, w, h);
