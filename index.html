@@ -3,6 +3,9 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -11,7 +14,7 @@
 <meta name="theme-color" content="#F7F3F0">
 <link rel="apple-touch-icon" href="./apple-touch-icon.jpg">
 <link rel="manifest" href="./manifest.json">
-<title>阅记 · 我的阅读追踪</title>
+<title>阅记 v2.1 · 我的阅读追踪</title>
 <style>
 @font-face { font-family:'Lora'; src:url('./_shared/fonts/Lora-Regular.ttf') format('truetype'); font-weight:400; font-style:normal; font-display:swap; }
 @font-face { font-family:'Lora'; src:url('./_shared/fonts/Lora-Bold.ttf') format('truetype'); font-weight:700; font-style:normal; font-display:swap; }
@@ -159,7 +162,7 @@ main{max-width:1280px;margin:0 auto;padding:30px 28px 90px}
 .shelf-body{overflow:hidden;transition:max-height .3s ease,opacity .25s,margin .25s}
 .shelf.collapsed .shelf-body{max-height:0!important;opacity:0;margin-top:-16px}
 .books-grid{
-  display:grid;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));gap:16px;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(262px,1fr));gap:16px;align-items:start;
 }
 
 /* ---------- Book Card ---------- */
@@ -203,6 +206,23 @@ main{max-width:1280px;margin:0 auto;padding:30px 28px 90px}
 .book-media-badge svg{width:12px;height:12px}
 .book-card.is-dropped{opacity:.78}
 .book-card.is-dropped .book-cover-wrap{filter:grayscale(.35)}
+.book-card.has-bg::before{content:'';position:absolute;inset:0;background-image:var(--card-bg);background-size:cover;background-position:center;z-index:0;pointer-events:none;border-radius:inherit}
+.book-card.has-bg::after{content:'';position:absolute;inset:0;background:var(--bg3);opacity:var(--card-bg-opacity,.85);z-index:0;pointer-events:none;border-radius:inherit}
+.book-card.has-bg > *{position:relative;z-index:1}
+.detail-img-bg{position:absolute;bottom:4px;left:4px;padding:2px 8px;border-radius:4px;background:rgba(122,74,84,.8);color:#fff;border:none;cursor:pointer;font-size:10px;font-weight:600;line-height:1.4}
+.detail-img-bg:hover{background:rgba(122,74,84,1)}
+.detail-img-bg.active{background:var(--accent3)}
+.detail-bg-controls{margin-top:10px;padding:10px 14px;background:var(--bg2);border-radius:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.detail-bg-controls label{font-size:13px;font-weight:600;color:var(--ink-soft);white-space:nowrap}
+.detail-bg-controls input[type=range]{flex:1;min-width:100px;accent-color:var(--accent3)}
+.detail-bg-controls .bg-val{font-size:12px;color:var(--muted);min-width:32px}
+.detail-bg-controls .remove-bg{font-size:12px;color:var(--accent3);cursor:pointer;border:none;background:none;font-weight:600}
+.detail-bg-controls .remove-bg:hover{opacity:.7}
+.crop-handle{position:absolute;width:14px;height:14px;background:#fff;border:2px solid var(--accent3);border-radius:50%;touch-action:none;z-index:2}
+.crop-handle-tl{top:-7px;left:-7px;cursor:nwse-resize}
+.crop-handle-tr{top:-7px;right:-7px;cursor:nesw-resize}
+.crop-handle-bl{bottom:-7px;left:-7px;cursor:nesw-resize}
+.crop-handle-br{bottom:-7px;right:-7px;cursor:nwse-resize}
 .book-body{padding:14px 15px 15px;display:flex;flex-direction:column;gap:8px;flex:1}
 .book-title{font-family:'Lora',serif;font-size:16px;font-weight:700;line-height:1.3;color:var(--ink)}
 .book-author{font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:5px;transition:color .15s}
@@ -254,6 +274,61 @@ main{max-width:1280px;margin:0 auto;padding:30px 28px 90px}
 .rating-stars{display:flex;gap:1px}
 .rating-stars svg{width:13px;height:13px;color:var(--accent3)}
 .rating-stars svg.empty{color:var(--rule)}
+.book-review{margin-top:6px;padding:8px 12px;background:var(--bg2);border-left:3px solid var(--accent3);border-radius:0 8px 8px 0;font-size:13px;color:var(--ink-soft);line-height:1.5;font-style:italic}
+.editable-review{cursor:pointer;transition:opacity .15s}
+.editable-review:hover{opacity:.65}
+.add-review-hint{margin-top:4px;font-size:12px;color:var(--muted2);cursor:pointer;transition:color .15s}
+.add-review-hint:hover{color:var(--accent3)}
+.clickable-title{cursor:pointer;transition:color .15s}
+.clickable-title:hover{color:var(--accent3)}
+.editable-drop-reason:hover{opacity:.65}
+.detail-header{display:flex;gap:16px;align-items:flex-start;margin-bottom:16px}
+.detail-cover{width:80px;height:112px;border-radius:8px;object-fit:cover;flex-shrink:0;background:var(--bg2)}
+.detail-cover-ph{width:80px;height:112px;border-radius:8px;flex-shrink:0;background:var(--bg2);display:flex;align-items:center;justify-content:center;color:var(--muted2)}
+.detail-info{flex:1;min-width:0}
+.detail-info h3{font-family:'Lora',serif;font-size:18px;font-weight:700;line-height:1.3;margin-bottom:4px}
+.detail-info .detail-author{font-size:13px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;gap:4px}
+.detail-author svg{width:12px;height:12px;flex-shrink:0}
+.detail-cats{display:flex;flex-wrap:wrap;gap:4px}
+.detail-section{margin-top:16px}
+.detail-section-title{font-size:13px;font-weight:600;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:4px}
+.detail-section-title svg{width:13px;height:13px;flex-shrink:0}
+.detail-synopsis{font-size:14px;line-height:1.7;color:var(--ink-soft);white-space:pre-wrap;word-break:break-word;overflow:hidden;transition:max-height .3s ease}
+.detail-synopsis.collapsed{max-height:72px}
+.detail-synopsis.expanded{max-height:2000px}
+.synopsis-toggle{display:inline-block;margin-top:4px;font-size:12px;color:var(--accent3);cursor:pointer;font-weight:600}
+.synopsis-toggle:hover{opacity:.7}
+.detail-images-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.detail-img-item{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:var(--bg2)}
+.detail-img-item img{width:100%;height:100%;object-fit:cover;cursor:pointer}
+.detail-img-del{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;line-height:1}
+.detail-img-del:hover{background:rgba(0,0,0,.7)}
+.detail-upload-btn{aspect-ratio:1;border:2px dashed var(--rule);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;color:var(--muted2);transition:border-color .15s,color .15s;font-size:12px;gap:4px}
+.detail-upload-btn:hover{border-color:var(--accent3);color:var(--accent3)}
+.detail-upload-btn svg{width:20px;height:20px}
+.detail-review-box{margin-top:8px;padding:10px 14px;background:var(--bg2);border-left:3px solid var(--accent3);border-radius:0 8px 8px 0;font-size:14px;color:var(--ink-soft);line-height:1.6;font-style:italic}
+.detail-drop-reason{margin-top:8px;padding:8px 12px;background:var(--bg2);border-left:3px solid var(--muted2);border-radius:0 8px 8px 0;font-size:13px;color:var(--ink-soft);line-height:1.5}
+.img-viewer-overlay{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.95);display:flex;flex-direction:column}
+.img-viewer-bar{display:flex;justify-content:center;align-items:center;padding:12px 16px;color:#fff;flex-shrink:0}
+.img-viewer-count{font-size:14px;font-weight:600}
+.img-viewer-save{position:absolute;bottom:20px;right:20px;padding:8px 18px;border-radius:10px;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.12);color:#fff;cursor:pointer;font-size:13px;z-index:2;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.img-viewer-save:hover{background:rgba(255,255,255,.25)}
+.img-viewer-save:active{transform:scale(.95)}
+.img-viewer-close{position:absolute;top:16px;right:16px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;background:rgba(255,255,255,.12);border:none;border-radius:50%;z-index:2;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.img-viewer-close:hover{background:rgba(255,255,255,.25)}
+.img-viewer-track{flex:1;display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.img-viewer-track::-webkit-scrollbar{display:none}
+.img-viewer-slide{flex:0 0 100%;display:flex;align-items:center;justify-content:center;scroll-snap-align:center}
+.img-viewer-slide img{max-width:90vw;max-height:78vh;object-fit:contain;border-radius:4px}
+.img-viewer-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.15);color:#fff;border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:1}
+.img-viewer-nav:hover{background:rgba(255,255,255,.25)}
+.img-viewer-prev{left:12px}
+.img-viewer-next{right:12px}
+@media(max-width:600px){.img-viewer-nav{width:32px;height:32px;font-size:20px}}
+.review-stars{display:flex;justify-content:center;gap:6px}
+.review-star{width:32px;height:32px;color:var(--rule);cursor:pointer;transition:color .15s,transform .15s}
+.review-star:hover{transform:scale(1.15)}
+.review-star.active{color:var(--accent3)}
 
 .editable-date{
   display:inline-flex;align-items:center;gap:4px;cursor:pointer;padding:2px 7px;
@@ -655,7 +730,7 @@ body.is-dragging *{cursor:grabbing!important}
 
 <main>
   <!-- Shelves View -->
-  <section id="view-shelves" class="view active"><div id="app-loading" style="display:grid;place-items:center;padding:60px 20px;color:var(--muted);gap:12px"><div style="width:32px;height:32px;border:3px solid var(--rule);border-top-color:var(--accent3);border-radius:50%;animation:spin .8s linear infinite"></div><span style="font-size:14px">正在加载阅记…</span></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style></section>
+  <section id="view-shelves" class="view active"><div id="app-loading" style="display:grid;place-items:center;padding:60px 20px;color:var(--muted);gap:12px"><div style="width:32px;height:32px;border:3px solid var(--rule);border-top-color:var(--accent3);border-radius:50%;animation:spin .8s linear infinite"></div><span style="font-size:14px">正在加载阅记 v2.1…</span></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style></section>
 
   <!-- Stats View -->
   <section id="view-stats" class="view">
@@ -680,16 +755,11 @@ body.is-dragging *{cursor:grabbing!important}
         <div class="chart-box" id="chart-media"></div>
       </div>
     </div>
-    <div class="chart-row" style="grid-template-columns:1fr 1fr">
+    <div class="chart-row" style="grid-template-columns:1fr">
       <div class="chart-card">
         <h3>分类分布</h3>
         <p class="chart-sub">点击扇区可筛选对应类型</p>
         <div class="chart-box" id="chart-category"></div>
-      </div>
-      <div class="chart-card">
-        <h3>评分分布</h3>
-        <p class="chart-sub">已完成作品的评分情况</p>
-        <div class="chart-box" id="chart-rating"></div>
       </div>
     </div>
     <div class="chart-row" style="grid-template-columns:1fr">
@@ -810,11 +880,11 @@ function render(stats){
     var c3 = ensure('chart-category');
     c3.setOption({
       tooltip:{ trigger:'item', appendToBody:true, formatter:'{b}<br/>{c} 部 ({d}%)<br/>点击筛选该类型' },
-      legend:{ orient:'vertical', right:6, top:'center', icon:'circle', itemWidth:8, itemHeight:8,
-        textStyle:{ color:muted, fontSize:12 } },
+      legend:{ orient:'vertical', right:'5%', top:'center', icon:'circle', itemWidth:10, itemHeight:10,
+        textStyle:{ color:muted, fontSize:13 } },
       color:palette,
       series:[{
-        type:'pie', radius:['46%','72%'], center:['38%','50%'], avoidLabelOverlap:true, padAngle:2,
+        type:'pie', radius:['42%','68%'], center:['35%','50%'], avoidLabelOverlap:true, padAngle:2,
         itemStyle:{ borderRadius:6, borderColor:'#fff', borderWidth:2 },
         label:{ show:false }, labelLine:{ show:false },
         emphasis:{ scale:true, scaleSize:6, label:{ show:true, position:'center', fontWeight:700, color:ink, formatter:'{b}\n{c}部\n点击筛选' } },
@@ -830,32 +900,7 @@ function render(stats){
     c3.setOption({ graphic:[] });
   }
 
-  /* ---------- 4. 评分分布 ---------- */
-  var ratedTotal = (stats.ratingDist||[]).reduce(function(a,b){return a+b;},0);
-  if(ratedTotal===0){
-    showEmpty('chart-rating', '为已完成作品评分后展示');
-  } else {
-    var rateLabels = ['1星','2星','3星','4星','5星'];
-    var rateData = stats.ratingDist.slice(0,5);
-    var c4 = ensure('chart-rating');
-    c4.setOption({
-      grid:{ left:36, right:20, top:24, bottom:30 },
-      tooltip:{ trigger:'axis', appendToBody:true, axisPointer:{ type:'shadow', shadowStyle:{ color:'rgba(122,74,84,.08)' } },
-        formatter:function(p){ return p[0].name+'<br/><b>'+p[0].value+'</b> 部'; } },
-      xAxis:{ type:'category', data:rateLabels, axisTick:{ show:false }, axisLine:{ lineStyle:{ color:rule } },
-        axisLabel:{ color:muted, fontSize:11 } },
-      yAxis:{ type:'value', minInterval:1, splitLine:{ lineStyle:{ color:rule, type:'dashed' } },
-        axisLabel:{ color:muted, fontSize:11 } },
-      series:[{
-        type:'bar', data:rateData, barWidth:'46%',
-        itemStyle:{ borderRadius:[6,6,0,0], color:{ type:'linear', x:0,y:0,x2:0,y2:1,
-          colorStops:[{ offset:0, color:read },{ offset:1, color:'#6f7d5f' }] } },
-        label:{ show:true, position:'top', color:read, fontSize:11, fontWeight:600, formatter:function(p){ return p.value?p.value:''; } }
-      }]
-    });
-  }
-
-  /* ---------- 5. 在看进度 ---------- */
+  /* ---------- 4. 在看进度 ---------- */
   var rl = stats.readingList || [];
   if(rl.length===0){
     showEmpty('chart-progress', '暂无在看作品');
@@ -889,6 +934,7 @@ window.Charts = { render: render };
 /* 阅记 · 阅读/观影/追番/追漫 追踪应用逻辑 */
 (function(){
 'use strict';
+console.log('阅记 v2.1 已加载');
 
 /* ---------- 常量 ---------- */
 var STORE_KEY = 'yueji.books.v2';
@@ -975,6 +1021,19 @@ function load(){
       delete b.category;
     }
   });
+  /* 迁移：倒数模式 currentPage 从"剩余量"改为"已读量" */
+  var migrated = false;
+  try{ migrated = localStorage.getItem('yueji.migrated_backward')==='1'; }catch(e){}
+  if(!migrated){
+    state.books.forEach(function(b){
+      if(b.progressMode==='backward' && b.totalPages>0){
+        b.currentPage = b.totalPages - (b.currentPage||0);
+        if(b.currentPage<0) b.currentPage=0;
+      }
+    });
+    save();
+    try{ localStorage.setItem('yueji.migrated_backward','1'); }catch(e){}
+  }
 }
 function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state.books)); }catch(e){} }
 
@@ -1014,9 +1073,9 @@ function seed(){
     { id:uid(), title:'百年孤独', author:'加西亚·马尔克斯', cover:'', shelf:'want', mediaType:'book', unit:'页', totalPages:0, currentPage:0, progressMode:'forward', categories:['文学'], rating:0, notes:'', addedDate:'2026-08-01', startDate:'', finishDate:'' },
     { id:uid(), title:'千与千寻', author:'宫崎骏', cover:'', shelf:'want', mediaType:'anime', unit:'集', totalPages:0, currentPage:0, progressMode:'forward', categories:['奇幻','治愈'], rating:0, notes:'', addedDate:'2026-08-10', startDate:'', finishDate:'' },
     { id:uid(), title:'活着', author:'余华', cover:'', shelf:'reading', mediaType:'book', unit:'页', totalPages:240, currentPage:128, progressMode:'forward', categories:['文学'], rating:0, notes:'余华笔下的福贵，命运沉浮。', addedDate:'2026-07-20', startDate:'2026-07-22', finishDate:'' },
-    { id:uid(), title:'三体', author:'刘慈欣', cover:'', shelf:'reading', mediaType:'book', unit:'页', totalPages:312, currentPage:78, progressMode:'backward', categories:['科幻'], rating:0, notes:'倒着数剩余页数，越读越轻。', addedDate:'2026-07-28', startDate:'2026-07-30', finishDate:'' },
+    { id:uid(), title:'三体', author:'刘慈欣', cover:'', shelf:'reading', mediaType:'book', unit:'页', totalPages:312, currentPage:234, progressMode:'backward', categories:['科幻'], rating:0, notes:'倒着数剩余页数，越读越轻。', addedDate:'2026-07-28', startDate:'2026-07-30', finishDate:'' },
     { id:uid(), title:'星际穿越', author:'克里斯托弗·诺兰', cover:'', shelf:'reading', mediaType:'film', unit:'分钟', totalPages:169, currentPage:74, progressMode:'forward', categories:['科幻','剧情'], rating:0, notes:'', addedDate:'2026-08-05', startDate:'2026-08-06', finishDate:'' },
-    { id:uid(), title:'进击的巨人', author:'WIT/MAPPA', cover:'', shelf:'reading', mediaType:'anime', unit:'集', totalPages:88, currentPage:12, progressMode:'backward', categories:['热血','奇幻'], rating:0, notes:'', addedDate:'2026-07-15', startDate:'2026-07-16', finishDate:'' },
+    { id:uid(), title:'进击的巨人', author:'WIT/MAPPA', cover:'', shelf:'reading', mediaType:'anime', unit:'集', totalPages:88, currentPage:76, progressMode:'backward', categories:['热血','奇幻'], rating:0, notes:'', addedDate:'2026-07-15', startDate:'2026-07-16', finishDate:'' },
     { id:uid(), title:'小王子', author:'圣埃克苏佩里', cover:'', shelf:'read', mediaType:'book', unit:'页', totalPages:96, currentPage:96, progressMode:'forward', categories:['文学'], rating:5, notes:'重要的东西用眼睛是看不见的。', addedDate:'2026-02-10', startDate:'2026-03-01', finishDate:'2026-03-05' },
     { id:uid(), title:'盗梦空间', author:'克里斯托弗·诺兰', cover:'', shelf:'read', mediaType:'film', unit:'分钟', totalPages:148, currentPage:148, progressMode:'forward', categories:['科幻','悬疑'], rating:5, notes:'梦境嵌套，层层惊心。', addedDate:'2026-04-01', startDate:'2026-04-03', finishDate:'2026-04-03' },
     { id:uid(), title:'鬼灭之刃', author:'吾峠呼世晴', cover:'', shelf:'read', mediaType:'manga', unit:'话', totalPages:205, currentPage:205, progressMode:'forward', categories:['热血'], rating:4, notes:'炭治郎的温柔与刀。', addedDate:'2025-11-01', startDate:'2025-11-10', finishDate:'2026-01-20' },
@@ -1030,10 +1089,13 @@ function progress(book){
   var total = +book.totalPages || 0;
   if(total<=0) return {pct:0, done:false, read:0, left:0, total:0};
   var cur = +book.currentPage || 0;
-  var read = book.progressMode==='backward' ? (total - cur) : cur;
-  read = Math.max(0, Math.min(read, total));
-  var pct = Math.round(read/total*100);
-  return { pct:pct, done:read>=total, read:read, left:total-read, total:total };
+  cur = Math.max(0, Math.min(cur, total));
+  var read = cur;
+  var left = total - read;
+  var pct = book.progressMode==='backward'
+    ? Math.round(left/(total||1)*100)
+    : Math.round(read/total*100);
+  return { pct:pct, done:read>=total, read:read, left:left, total:total };
 }
 
 /* ---------- 渲染：书架视图 ---------- */
@@ -1169,12 +1231,15 @@ function bookCard(b){
   var s = SHELVES[b.shelf];
   var c = s.color;
   var m = mediaOf(b);
-  var h = '<article class="book-card'+(b.shelf==='dropped'?' is-dropped':'')+'" data-id="'+b.id+'" style="--c:'+c+'">';
+  var bgClass = b.bgImage ? ' has-bg' : '';
+  var bgStyle = b.bgImage ? ";--card-bg:url('"+b.bgImage+"');--card-bg-opacity:"+((b.bgOpacity||85)/100) : '';
+  var h = '<article class="book-card'+(b.shelf==='dropped'?' is-dropped':'')+bgClass+'" data-id="'+b.id+'" style="--c:'+c+bgStyle+'">';
   h += '<div class="book-cover-wrap">'+coverHTML(b);
   h += '<span class="book-media-badge" style="--c:'+m.color+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+m.icon+'</svg>'+m.short+'</span>';
   h += '</div>';
   h += '<div class="book-body">';
-  h += '<div class="book-title">'+esc(b.title)+'</div>';
+  var titleClickable = (b.shelf==='reading' || b.shelf==='read');
+  h += '<div class="book-title'+(titleClickable?' clickable-title':'')+'"'+(titleClickable?' data-act="open-detail" title="点击查看详情"':'')+'>'+esc(b.title)+'</div>';
   if(b.author){
     var authorActive = state.filterAuthor===b.author;
     h += '<div class="book-author'+(authorActive?' active':'')+'" data-act="filter-author" data-author="'+esc(b.author)+'">'+I.user+esc(b.author)+'</div>';
@@ -1198,15 +1263,17 @@ function bookCard(b){
     var u = unitOf(b); var v = verbOf(b);
     var modeLabel = b.progressMode==='backward' ? '倒数（剩余）' : '正数（已'+v+'）';
     var modeIcon = b.progressMode==='backward' ? I.arrowDown : I.arrowUp;
+    var displayPct = b.progressMode==='backward' ? Math.round(p.left/(p.total||1)*100) : p.pct;
+    var pctLabel = b.progressMode==='backward' ? '剩余 '+displayPct+'%' : displayPct+'%';
     h += '<div class="progress-block">';
-    h += '<div class="progress-meta"><span class="progress-mode">'+modeIcon+modeLabel+'</span><span class="progress-pct">'+p.pct+'%</span></div>';
-    h += '<div class="progress-track"><div class="progress-fill'+(p.done?' done':'')+'" style="width:'+p.pct+'%"></div></div>';
+    h += '<div class="progress-meta"><span class="progress-mode">'+modeIcon+modeLabel+'</span><span class="progress-pct">'+pctLabel+'</span></div>';
+    h += '<div class="progress-track"><div class="progress-fill'+(p.done?' done':'')+'" style="width:'+displayPct+'%"></div></div>';
     var numText = b.progressMode==='backward'
       ? '剩余 '+p.left+' '+u+' / 共 '+p.total+' '+u
       : '已'+v+' '+p.read+' '+u+' / 共 '+p.total+' '+u;
     h += '<div class="progress-num">'+numText+'</div>';
     h += '<div class="progress-quick" style="--c:'+c+'">';
-    h += '<input type="number" min="0" placeholder="'+(b.progressMode==='backward'?'剩余'+u:'已'+v+u)+'" data-act="quick-input" value="'+(b.currentPage||'')+'">';
+    h += '<input type="number" min="0" max="'+p.total+'" placeholder="已'+v+u+'" data-act="quick-input" value="'+(b.currentPage||'')+'">';
     h += '<button class="btn-mini" data-act="quick-update" style="--c:'+c+'">更新</button>';
     h += '</div>';
     h += '</div>';
@@ -1215,19 +1282,25 @@ function bookCard(b){
   if(b.shelf==='read'){
     h += '<div class="book-meta-row">';
     h += '<span class="meta-item editable-date" data-act="edit-date" data-field="finishDate" title="点击修改完成日期">'+I.calendar+fmtDateShort(b.finishDate)+'</span>';
-    if(b.rating>0) h += starsHTML(b.rating);
+    if(b.rating>0) h += '<span data-act="edit-review" title="点击修改评价" class="editable-review">'+starsHTML(b.rating)+'</span>';
     if(b.totalPages>0) h += '<span class="meta-item">'+I.pages+b.totalPages+unitOf(b)+'</span>';
     h += '</div>';
+    if(b.review){
+      h += '<div class="book-review editable-review" data-act="edit-review" title="点击修改评价">'+esc(b.review)+'</div>';
+    } else if(b.rating<=0){
+      h += '<div class="add-review-hint" data-act="edit-review" title="点击添加评价">+ 评价</div>';
+    }
   }
 
-  if(b.shelf==='dropped' && b.dropReason){
-    h += '<div class="book-meta-row"><span class="meta-item" style="color:var(--muted2)">弃看理由：'+esc(b.dropReason)+'</span></div>';
+  if(b.shelf==='dropped' && (b.dropReason || b.notes)){
+    var dropR = b.dropReason || b.notes;
+    h += '<div class="book-meta-row"><span class="meta-item editable-drop-reason" data-act="edit-drop-reason" title="点击修改弃看理由" style="color:var(--muted2);cursor:pointer">弃看理由：'+esc(dropR)+'</span></div>';
   }
 
   /* 操作按钮 */
   h += '<div class="book-actions">';
   if(b.shelf==='want'){
-    var startLabel = (m.verb==='看')?'开始观看':'开始阅读';
+    var startLabel = '开始';
     h += actBtn('primary','start',startLabel,I.play);
     h += actBtn('','edit','编辑',I.pencil);
     h += actBtn('danger','delete','',I.trash);
@@ -1312,6 +1385,9 @@ function bindEvents(){
     else if(act==='rewant'){ moveShelf(book,'want'); toast('已移回「想看」','info'); }
     else if(act==='quick-update'){ quickUpdate(book, card); }
     else if(act==='edit-date'){ openEditModal(book, t.getAttribute('data-field')); }
+    else if(act==='edit-review'){ showReviewDialog(book); }
+    else if(act==='edit-drop-reason'){ editDropReason(book); }
+    else if(act==='open-detail'){ openDetailModal(book); }
   });
 
   document.addEventListener('keydown', function(e){
@@ -1370,17 +1446,12 @@ function quickUpdate(book, card){
   var val = parseInt(raw,10);
   if(isNaN(val) || val<0){ toast('请输入有效数值','warn'); return; }
   var total = +book.totalPages||0;
-  if(book.progressMode==='backward'){
-    if(val > total){ toast('剩余量不能超过总量','warn'); return; }
-    book.currentPage = val;
-  } else {
-    if(val > total) val = total;
-    book.currentPage = val;
-  }
+  if(val > total) val = total;
+  book.currentPage = val;
   var p = progress(book);
-  save(); renderShelves();
+  save();
   if(p.done){ completeBook(book, false); }
-  else { toast('进度已更新 · '+p.pct+'%','success'); }
+  else { renderShelves(); toast('进度已更新 · '+p.pct+'%','success'); }
 }
 
 /* ---------- 完成 ---------- */
@@ -1394,6 +1465,669 @@ function completeBook(book, manual){
   if(state.view==='stats') renderStats();
   var v = verbOf(book);
   toast('恭喜'+(v==='看'?'看完':'读完')+'《'+book.title+'》','success');
+  setTimeout(function(){ showReviewDialog(book); }, 100);
+}
+
+function showReviewDialog(book){
+  var isEdit = (book.rating>0) || !!book.review;
+  var html = '';
+  html += '<div class="modal-head"><div><h3>'+(isEdit?'修改评价':'评价')+'《'+esc(book.title)+'》</h3></div>';
+  html += '<button class="modal-close" data-close="1">'+I.close+'</button></div>';
+  html += '<div class="modal-body" style="text-align:center">';
+  html += '<p style="margin-bottom:12px;color:var(--ink-soft)">'+(isEdit?'点击星星修改评分，编辑后保存即可':(verbOf(book)==='看'?'恭喜看完！给个评价吧':'恭喜读完！给个评价吧'))+'</p>';
+  html += '<div class="review-stars" id="review-stars">';
+  for(var i=1;i<=5;i++){
+    html += '<svg class="review-star'+(i<=(book.rating||0)?' active':'')+'" data-val="'+i+'" viewBox="0 0 24 24" fill="'+(i<=(book.rating||0)?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  }
+  html += '</div>';
+  html += '<textarea id="review-text" placeholder="写下你的感受（选填）" rows="3" style="width:100%;margin-top:14px;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;resize:vertical">'+esc(book.review||'')+'</textarea>';
+  html += '</div>';
+  html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">跳过</button>';
+  html += '<button class="btn btn-primary" id="review-save">保存评价</button></div>';
+  openModal(html, 'confirm');
+  document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeModal); });
+  var rating = book.rating||0;
+  document.querySelectorAll('.review-star').forEach(function(star){
+    star.addEventListener('click', function(){
+      rating = parseInt(star.getAttribute('data-val'),10);
+      document.querySelectorAll('.review-star').forEach(function(s){
+        var sv = parseInt(s.getAttribute('data-val'),10);
+        s.classList.toggle('active', sv<=rating);
+        s.setAttribute('fill', sv<=rating?'currentColor':'none');
+      });
+    });
+  });
+  document.getElementById('review-save').addEventListener('click', function(){
+    var review = document.getElementById('review-text').value.trim();
+    book.rating = rating;
+    book.review = review;
+    save(); renderShelves();
+    if(state.view==='stats') renderStats();
+    closeModal();
+    toast('评价已保存','success');
+  });
+}
+
+/* ---------- 弃看理由编辑 ---------- */
+function editDropReason(book){
+  var cur = book.dropReason || book.notes || '';
+  var html = '';
+  html += '<div class="modal-head"><div><h3>修改弃看理由</h3></div>';
+  html += '<button class="modal-close" data-close="1">'+I.close+'</button></div>';
+  html += '<div class="modal-body">';
+  html += '<textarea id="drop-reason-edit" placeholder="为什么放弃这部作品？" rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;resize:vertical">'+esc(cur)+'</textarea>';
+  html += '</div>';
+  html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">取消</button>';
+  html += '<button class="btn btn-primary" id="drop-reason-save">保存</button></div>';
+  openModal(html, 'confirm');
+  document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeModal); });
+  document.getElementById('drop-reason-save').addEventListener('click', function(){
+    var reason = document.getElementById('drop-reason-edit').value.trim();
+    book.dropReason = reason;
+    book.notes = reason;
+    save(); renderShelves();
+    closeModal();
+    toast('弃看理由已更新','success');
+  });
+}
+
+/* ---------- 图片裁剪 ---------- */
+function openCropModal(imgSrc, callback){
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px';
+  var box = document.createElement('div');
+  box.style.cssText = 'background:'+getComputedStyle(document.documentElement).getPropertyValue('--bg')+';border-radius:16px;padding:16px;max-width:480px;width:100%;box-shadow:0 8px 32px rgba(0,0,0,.4)';
+  var title = document.createElement('div');
+  title.textContent = '裁剪背景图';
+  title.style.cssText = 'font-size:15px;font-weight:700;margin-bottom:12px;text-align:center';
+  box.appendChild(title);
+  var imgWrap = document.createElement('div');
+  imgWrap.style.cssText = 'position:relative;display:inline-block;max-width:100%;touch-action:none;user-select:none;-webkit-user-select:none';
+  var img = document.createElement('img');
+  img.src = imgSrc;
+  img.style.cssText = 'max-width:100%;max-height:55vh;display:block;border-radius:8px;user-select:none;-webkit-user-drag:none;pointer-events:none';
+  imgWrap.appendChild(img);
+  var sel = document.createElement('div');
+  sel.style.cssText = 'position:absolute;border:2px solid #fff;box-shadow:0 0 0 9999px rgba(0,0,0,.5);cursor:move;touch-action:none';
+  ['tl','tr','bl','br'].forEach(function(corner){
+    var h = document.createElement('div');
+    h.className = 'crop-handle crop-handle-'+corner;
+    h.dataset.corner = corner;
+    sel.appendChild(h);
+  });
+  imgWrap.appendChild(sel);
+  box.appendChild(imgWrap);
+  var btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;margin-top:14px;justify-content:center';
+  var cancelBtn = document.createElement('button');
+  cancelBtn.textContent = '取消';
+  cancelBtn.style.cssText = 'padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--bg2);cursor:pointer;font-size:13px;color:var(--ink-soft)';
+  var fullBtn = document.createElement('button');
+  fullBtn.textContent = '完整图片';
+  fullBtn.style.cssText = 'padding:8px 16px;border-radius:8px;border:1px solid var(--rule);background:var(--bg2);cursor:pointer;font-size:13px;color:var(--ink-soft)';
+  var confirmBtn = document.createElement('button');
+  confirmBtn.textContent = '确认裁剪';
+  confirmBtn.style.cssText = 'padding:8px 20px;border-radius:8px;border:none;background:var(--accent3);color:#fff;cursor:pointer;font-size:13px;font-weight:600';
+  btnRow.appendChild(cancelBtn); btnRow.appendChild(fullBtn); btnRow.appendChild(confirmBtn);
+  box.appendChild(btnRow);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  var natW, natH, dispW, dispH, scale;
+  var selX, selY, selW, selH;
+  var dragMode = null, sX, sY, sSelX, sSelY, sSelW, sSelH;
+
+  function updateSel(){
+    sel.style.left = selX+'px'; sel.style.top = selY+'px';
+    sel.style.width = selW+'px'; sel.style.height = selH+'px';
+  }
+  function clamp(){
+    selW = Math.max(30, Math.min(selW, dispW));
+    selH = Math.max(30, Math.min(selH, dispH));
+    selX = Math.max(0, Math.min(selX, dispW - selW));
+    selY = Math.max(0, Math.min(selY, dispH - selH));
+  }
+  function onDown(e){
+    var t = e.touches ? e.touches[0] : e;
+    sX = t.clientX; sY = t.clientY;
+    sSelX = selX; sSelY = selY; sSelW = selW; sSelH = selH;
+    dragMode = (e.target.classList && e.target.classList.contains('crop-handle')) ? e.target.dataset.corner : 'move';
+    e.preventDefault();
+  }
+  function onMove(e){
+    if(!dragMode) return;
+    var t = e.touches ? e.touches[0] : e;
+    var dx = t.clientX - sX, dy = t.clientY - sY;
+    if(dragMode==='move'){ selX = sSelX+dx; selY = sSelY+dy; }
+    else if(dragMode==='tl'){ selX=sSelX+dx; selY=sSelY+dy; selW=sSelW-dx; selH=sSelH-dy; }
+    else if(dragMode==='tr'){ selY=sSelY+dy; selW=sSelW+dx; selH=sSelH-dy; }
+    else if(dragMode==='bl'){ selX=sSelX+dx; selW=sSelW-dx; selH=sSelH+dy; }
+    else if(dragMode==='br'){ selW=sSelW+dx; selH=sSelH+dy; }
+    clamp(); updateSel(); e.preventDefault();
+  }
+  function onUp(){ dragMode = null; }
+
+  function doCrop(){
+    var cx = selX * scale, cy = selY * scale;
+    var cw = selW * scale, ch = selH * scale;
+    var cv = document.createElement('canvas');
+    cv.width = cw; cv.height = ch;
+    cv.getContext('2d').drawImage(img, cx, cy, cw, ch, 0, 0, cw, ch);
+    callback(cv.toDataURL('image/jpeg', 0.85));
+    closeCrop();
+  }
+  function closeCrop(){
+    document.removeEventListener('mousemove', onMove);
+    document.removeEventListener('touchmove', onMove);
+    document.removeEventListener('mouseup', onUp);
+    document.removeEventListener('touchend', onUp);
+    document.body.removeChild(overlay);
+  }
+
+  img.onload = function(){
+    natW = img.naturalWidth; natH = img.naturalHeight;
+    dispW = img.offsetWidth; dispH = img.offsetHeight;
+    scale = natW / dispW;
+    selW = dispW * 0.8; selH = dispH * 0.6;
+    selX = (dispW - selW) / 2; selY = (dispH - selH) / 2;
+    updateSel();
+    sel.addEventListener('mousedown', onDown);
+    sel.addEventListener('touchstart', onDown, {passive:false});
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('touchmove', onMove, {passive:false});
+    document.addEventListener('mouseup', onUp);
+    document.addEventListener('touchend', onUp);
+  };
+
+  confirmBtn.addEventListener('click', doCrop);
+  fullBtn.addEventListener('click', function(){ callback(imgSrc); closeCrop(); });
+  cancelBtn.addEventListener('click', closeCrop);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) closeCrop(); });
+}
+
+/* ---------- 作品详情页 ---------- */
+function openDetailModal(book){
+  var m = mediaOf(book);
+  var verb = verbOf(book);
+  var html = '';
+  html += '<div class="modal-head"><div><h3>作品详情</h3></div>';
+  html += '<button class="modal-close" data-close="1">'+I.close+'</button></div>';
+  html += '<div class="modal-body" style="padding:20px">';
+
+  /* 头部：封面+标题+作者 */
+  html += '<div class="detail-header">';
+  var coverSrc = book.cover || (book.images && book.images.length > 0 ? book.images[0] : '');
+  if(coverSrc){
+    html += '<img class="detail-cover" src="'+esc(coverSrc)+'" alt="">';
+  } else {
+    var ph = (book.title||'?').slice(0,1);
+    html += '<div class="detail-cover-ph"><span style="font-size:28px;font-family:Lora,serif;font-weight:700">'+esc(ph)+'</span></div>';
+  }
+  html += '<div class="detail-info">';
+  html += '<h3>'+esc(book.title)+'</h3>';
+  if(book.author) html += '<div class="detail-author">'+I.user+esc(book.author)+'</div>';
+  html += '<div style="font-size:12px;color:var(--muted2);margin-bottom:6px;display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">'+m.icon+'</svg>'+MEDIA[book.mediaType].name+'</div>';
+  var cats = book.categories||[];
+  if(cats.length){
+    html += '<div class="detail-cats">';
+    cats.forEach(function(c){ html += '<span class="cat-pill">'+esc(c)+'</span>'; });
+    html += '</div>';
+  }
+  html += '</div></div>';
+
+  /* 进度信息 */
+  if(book.totalPages>0){
+    var p = progress(book);
+    html += '<div class="detail-section">';
+    html += '<div class="detail-section-title">'+I.pages+'进度</div>';
+    var pctText = book.progressMode==='backward' ? '剩余 '+p.left : verb+' '+p.read;
+    html += '<div style="font-size:14px;color:var(--ink-soft)">'+pctText+' / 共 '+book.totalPages+book.unit+'</div>';
+    var displayPct = book.progressMode==='backward' ? Math.round(p.left/(p.total||1)*100) : p.pct;
+    html += '<div class="progress-track" style="margin-top:8px"><div class="progress-fill'+(p.done?' done':'')+'" style="width:'+displayPct+'%"></div></div>';
+    html += '</div>';
+  }
+
+  /* 简介 */
+  if(book.notes){
+    html += '<div class="detail-section">';
+    html += '<div class="detail-section-title">简介</div>';
+    var needToggle = book.notes.length > 80;
+    html += '<div class="detail-synopsis'+(needToggle?' collapsed':' expanded')+'" id="detail-synopsis">'+esc(book.notes)+'</div>';
+    if(needToggle){
+      html += '<span class="synopsis-toggle" id="synopsis-toggle">展开</span>';
+    }
+    html += '</div>';
+  }
+
+  /* 图片模块 */
+  html += '<div class="detail-section">';
+  html += '<div class="detail-section-title">图片</div>';
+  html += '<div class="detail-images-grid" id="detail-images">';
+  var imgs = book.images||[];
+  imgs.forEach(function(src, idx){
+    var isBg = book.bgImageSrc === src;
+    html += '<div class="detail-img-item"><img src="'+src+'" data-idx="'+idx+'">';
+    html += '<button class="detail-img-del" data-del-idx="'+idx+'" title="删除">×</button>';
+    html += '<button class="detail-img-bg'+(isBg?' active':'')+'" data-bg-idx="'+idx+'" title="设为卡片背景">背景</button></div>';
+  });
+  if(imgs.length < 20){
+    html += '<div class="detail-upload-btn" id="detail-upload-btn">';
+    html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>';
+    html += '<span>添加图片</span></div>';
+  }
+  html += '</div>';
+  if(book.bgImage){
+    html += '<div class="detail-bg-controls">';
+    html += '<label>背景透明度</label>';
+    html += '<input type="range" id="bg-opacity-slider" min="50" max="95" value="'+(book.bgOpacity||85)+'">';
+    html += '<span class="bg-val" id="bg-opacity-val">'+(book.bgOpacity||85)+'%</span>';
+    html += '<button class="remove-bg" id="remove-bg-btn">取消背景</button>';
+    html += '</div>';
+  }
+  html += '<input type="file" id="detail-file-input" accept="image/*" style="display:none" multiple>';
+  html += '</div>';
+
+  /* 已看：评分+评价 */
+  if(book.shelf==='read'){
+    if(book.rating>0 || book.review){
+      html += '<div class="detail-section">';
+      html += '<div class="detail-section-title">评价</div>';
+      if(book.rating>0) html += '<div style="margin-bottom:6px">'+starsHTML(book.rating)+'</div>';
+      if(book.review) html += '<div class="detail-review-box">'+esc(book.review)+'</div>';
+      html += '</div>';
+    }
+  }
+
+  /* 弃看：弃看理由 */
+  if(book.shelf==='dropped' && (book.dropReason || book.notes)){
+    html += '<div class="detail-section">';
+    html += '<div class="detail-section-title">弃看理由</div>';
+    html += '<div class="detail-drop-reason">'+esc(book.dropReason||book.notes)+'</div>';
+    html += '</div>';
+  }
+
+  /* 日期 */
+  html += '<div class="detail-section">';
+  html += '<div class="detail-section-title">日期</div>';
+  html += '<div style="font-size:13px;color:var(--muted);line-height:1.8">';
+  html += '添加：'+fmtDateShort(book.addedDate)+'<br>';
+  if(book.startDate) html += '开始：'+fmtDateShort(book.startDate)+'<br>';
+  if(book.finishDate) html += '完成：'+fmtDateShort(book.finishDate);
+  html += '</div></div>';
+
+  html += '</div>';
+  html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">关闭</button></div>';
+  openModal(html, 'detail');
+
+  /* 事件绑定 */
+  document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeModal); });
+
+  /* 简介展开/收起 */
+  var toggle = document.getElementById('synopsis-toggle');
+  var syn = document.getElementById('detail-synopsis');
+  if(toggle && syn){
+    toggle.addEventListener('click', function(){
+      if(syn.classList.contains('collapsed')){
+        syn.classList.remove('collapsed');
+        syn.classList.add('expanded');
+        toggle.textContent = '收起';
+      } else {
+        syn.classList.remove('expanded');
+        syn.classList.add('collapsed');
+        toggle.textContent = '展开';
+      }
+    });
+  }
+
+  /* 图片上传 */
+  var uploadBtn = document.getElementById('detail-upload-btn');
+  var fileInput = document.getElementById('detail-file-input');
+  if(uploadBtn && fileInput){
+    uploadBtn.addEventListener('click', function(){ fileInput.click(); });
+    fileInput.addEventListener('change', function(e){
+      var files = e.target.files;
+      if(!files || !files.length) return;
+      var remaining = 20 - (book.images||[]).length;
+      var toProcess = Math.min(files.length, remaining);
+      var processed = 0;
+      for(var i=0; i<toProcess; i++){
+        (function(file){
+          var key = genImgKey();
+          var compressed = false, savedOrig = false;
+          var dataUrl = null;
+          function tryFinish(){
+            if(compressed && savedOrig){
+              if(!book.images) book.images = [];
+              if(!book.imgKeys) book.imgKeys = [];
+              book.images.push(dataUrl);
+              book.imgKeys.push(key);
+              processed++;
+              if(processed >= toProcess){
+                save();
+                closeModal();
+                openDetailModal(book);
+                toast('图片已添加','success');
+              }
+            }
+          }
+          saveOriginalImage(key, file, function(){ savedOrig = true; tryFinish(); });
+          compressImage(file, 1200, 0.8, function(result){
+            dataUrl = result; compressed = true; tryFinish();
+          });
+        })(files[i]);
+      }
+      if(files.length > remaining){
+        toast('最多上传20张图片','warn');
+      }
+    });
+  }
+
+  /* 设为背景 */
+  document.querySelectorAll('[data-bg-idx]').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var idx = parseInt(btn.getAttribute('data-bg-idx'), 10);
+      if(!book.images || !book.images[idx]) return;
+      var imgSrc = book.images[idx];
+      closeModal();
+      openCropModal(imgSrc, function(croppedDataUrl){
+        book.bgImage = croppedDataUrl;
+        book.bgImageSrc = imgSrc;
+        if(!book.bgOpacity) book.bgOpacity = 85;
+        save(); renderShelves();
+        openDetailModal(book);
+        toast('背景已设置','success');
+      });
+    });
+  });
+
+  /* 背景透明度 */
+  var slider = document.getElementById('bg-opacity-slider');
+  var sliderVal = document.getElementById('bg-opacity-val');
+  if(slider && sliderVal){
+    slider.addEventListener('input', function(){
+      var val = parseInt(slider.value, 10);
+      sliderVal.textContent = val + '%';
+      book.bgOpacity = val;
+    });
+    slider.addEventListener('change', function(){
+      save(); renderShelves();
+    });
+  }
+
+  /* 取消背景 */
+  var removeBgBtn = document.getElementById('remove-bg-btn');
+  if(removeBgBtn){
+    removeBgBtn.addEventListener('click', function(){
+      book.bgImage = ''; book.bgImageSrc = '';
+      save(); renderShelves();
+      closeModal(); openDetailModal(book);
+      toast('已取消背景','info');
+    });
+  }
+
+  /* 图片删除 */
+  document.querySelectorAll('[data-del-idx]').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      e.stopPropagation();
+      var idx = parseInt(btn.getAttribute('data-del-idx'), 10);
+      if(!book.images) return;
+      if(book.bgImageSrc === book.images[idx]){
+        book.bgImage = ''; book.bgImageSrc = '';
+      }
+      if(book.imgKeys && book.imgKeys[idx]) deleteOriginalImage(book.imgKeys[idx], function(){});
+      book.images.splice(idx, 1);
+      if(book.imgKeys) book.imgKeys.splice(idx, 1);
+      save();
+      closeModal();
+      openDetailModal(book);
+      toast('图片已删除','success');
+    });
+  });
+
+  /* 图片查看大图 */
+  var allImages = book.images || [];
+  var allKeys = book.imgKeys || [];
+  document.querySelectorAll('.detail-img-item img').forEach(function(imgEl){
+    imgEl.addEventListener('click', function(){
+      var clickIdx = parseInt(imgEl.getAttribute('data-idx'), 10) || 0;
+      openImageViewer(allImages, clickIdx, allKeys);
+    });
+  });
+}
+
+/* 图片查看器：左右滑动 + 保存到本地 */
+function openImageViewer(images, startIndex, imgKeys){
+  if(!images || !images.length) return;
+  imgKeys = imgKeys || [];
+  var cur = Math.max(0, Math.min(startIndex, images.length - 1));
+
+  var overlay = document.createElement('div');
+  overlay.className = 'img-viewer-overlay';
+
+  /* 顶部栏（仅计数） */
+  var bar = document.createElement('div');
+  bar.className = 'img-viewer-bar';
+  bar.innerHTML = '<span class="img-viewer-count" id="iv-count">'+(cur+1)+' / '+images.length+'</span>';
+  overlay.appendChild(bar);
+
+  /* 关闭按钮（右上角） */
+  var closeBtn = document.createElement('button');
+  closeBtn.className = 'img-viewer-close';
+  closeBtn.id = 'iv-close';
+  closeBtn.innerHTML = I.close;
+  overlay.appendChild(closeBtn);
+
+  /* 保存按钮（右下角） */
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'img-viewer-save';
+  saveBtn.id = 'iv-save';
+  saveBtn.textContent = '保存到本地';
+  overlay.appendChild(saveBtn);
+
+  /* 滑动轨道 */
+  var track = document.createElement('div');
+  track.className = 'img-viewer-track';
+  images.forEach(function(src){
+    var slide = document.createElement('div');
+    slide.className = 'img-viewer-slide';
+    var img = document.createElement('img');
+    img.src = src;
+    slide.appendChild(img);
+    track.appendChild(slide);
+  });
+  overlay.appendChild(track);
+
+  /* 导航按钮 */
+  if(images.length > 1){
+    var prevBtn = document.createElement('button');
+    prevBtn.className = 'img-viewer-nav img-viewer-prev';
+    prevBtn.innerHTML = '&#10094;';
+    overlay.appendChild(prevBtn);
+
+    var nextBtn = document.createElement('button');
+    nextBtn.className = 'img-viewer-nav img-viewer-next';
+    nextBtn.innerHTML = '&#10095;';
+    overlay.appendChild(nextBtn);
+  }
+
+  document.body.appendChild(overlay);
+
+  /* 滚动到起始图片 */
+  track.scrollTo({ left: cur * track.offsetWidth, behavior: 'instant' });
+
+  /* 更新计数 */
+  function updateCount(){
+    var idx = Math.round(track.scrollLeft / track.offsetWidth);
+    idx = Math.max(0, Math.min(idx, images.length - 1));
+    cur = idx;
+    var countEl = document.getElementById('iv-count');
+    if(countEl) countEl.textContent = (cur + 1) + ' / ' + images.length;
+  }
+
+  /* 滑动结束后更新 */
+  var scrollTimer = null;
+  track.addEventListener('scroll', function(){
+    if(scrollTimer) clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(updateCount, 80);
+  });
+
+  /* 导航按钮 */
+  function goTo(idx){
+    idx = Math.max(0, Math.min(idx, images.length - 1));
+    cur = idx;
+    track.scrollTo({ left: idx * track.offsetWidth, behavior: 'smooth' });
+    var countEl = document.getElementById('iv-count');
+    if(countEl) countEl.textContent = (cur + 1) + ' / ' + images.length;
+  }
+  if(prevBtn) prevBtn.addEventListener('click', function(e){ e.stopPropagation(); goTo(cur - 1); });
+  if(nextBtn) nextBtn.addEventListener('click', function(e){ e.stopPropagation(); goTo(cur + 1); });
+
+  /* 保存图片到本地（优先取原始文件） */
+  function saveCurrentImage(){
+    var src = images[cur];
+    if(!src) return;
+    var key = imgKeys[cur];
+    var origText = saveBtn.textContent;
+    saveBtn.textContent = '保存中…';
+    saveBtn.disabled = true;
+
+    function downloadBlob(blob, fileName){
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+      toast('图片已保存到本地','success');
+    }
+
+    function fallbackCompressed(){
+      if(src.indexOf('data:') === 0){
+        var arr = src.split(',');
+        var mime = (arr[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+        var ext = mime === 'image/png' ? 'png' : 'jpg';
+        var fileName = 'yueji_image_' + Date.now() + '.' + ext;
+        var bstr = atob(arr[1]);
+        var n = bstr.length;
+        var u8 = new Uint8Array(n);
+        for(var i = 0; i < n; i++) u8[i] = bstr.charCodeAt(i);
+        downloadBlob(new Blob([u8], { type: mime }), fileName);
+      } else {
+        var a2 = document.createElement('a');
+        a2.href = src;
+        a2.download = 'yueji_image_' + Date.now() + '.jpg';
+        a2.click();
+        toast('图片已保存到本地','success');
+      }
+    }
+
+    if(key){
+      getOriginalImage(key, function(blob){
+        if(blob){
+          var ext = blob.type === 'image/png' ? 'png' : 'jpg';
+          downloadBlob(blob, 'yueji_image_' + Date.now() + '.' + ext);
+        } else {
+          fallbackCompressed();
+        }
+        saveBtn.textContent = origText;
+        saveBtn.disabled = false;
+      });
+    } else {
+      fallbackCompressed();
+      saveBtn.textContent = origText;
+      saveBtn.disabled = false;
+    }
+  }
+  saveBtn.addEventListener('click', function(e){ e.stopPropagation(); saveCurrentImage(); });
+
+  /* 关闭 */
+  function closeViewer(){
+    overlay.remove();
+    document.removeEventListener('keydown', keyHandler);
+  }
+  closeBtn.addEventListener('click', closeViewer);
+
+  /* 键盘导航 */
+  function keyHandler(e){
+    if(e.key === 'Escape') closeViewer();
+    else if(e.key === 'ArrowLeft' && images.length > 1) goTo(cur - 1);
+    else if(e.key === 'ArrowRight' && images.length > 1) goTo(cur + 1);
+  }
+  document.addEventListener('keydown', keyHandler);
+}
+
+/* IndexedDB：存储原始图片 */
+var imgDB = null;
+function openImgDB(cb){
+  if(imgDB){ cb(imgDB); return; }
+  try {
+    var req = indexedDB.open('yueji_images', 1);
+    req.onupgradeneeded = function(e){
+      var db = e.target.result;
+      if(!db.objectStoreNames.contains('images')) db.createObjectStore('images');
+    };
+    req.onsuccess = function(e){ imgDB = e.target.result; cb(imgDB); };
+    req.onerror = function(){ cb(null); };
+  } catch(e){ cb(null); }
+}
+function saveOriginalImage(key, blob, cb){
+  openImgDB(function(db){
+    if(!db){ if(cb) cb(false); return; }
+    try {
+      var tx = db.transaction('images', 'readwrite');
+      tx.objectStore('images').put(blob, key);
+      tx.oncomplete = function(){ if(cb) cb(true); };
+      tx.onerror = function(){ if(cb) cb(false); };
+    } catch(e){ if(cb) cb(false); }
+  });
+}
+function getOriginalImage(key, cb){
+  openImgDB(function(db){
+    if(!db){ cb(null); return; }
+    try {
+      var tx = db.transaction('images', 'readonly');
+      var req = tx.objectStore('images').get(key);
+      req.onsuccess = function(e){ cb(e.target.result); };
+      req.onerror = function(){ cb(null); };
+    } catch(e){ cb(null); }
+  });
+}
+function deleteOriginalImage(key, cb){
+  openImgDB(function(db){
+    if(!db){ if(cb) cb(); return; }
+    try {
+      var tx = db.transaction('images', 'readwrite');
+      tx.objectStore('images').delete(key);
+      tx.oncomplete = function(){ if(cb) cb(); };
+      tx.onerror = function(){ if(cb) cb(); };
+    } catch(e){ if(cb) cb(); }
+  });
+}
+function genImgKey(){
+  return 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+/* 图片压缩 */
+function compressImage(file, maxDim, quality, callback){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var canvas = document.createElement('canvas');
+      var w = img.width, h = img.height;
+      if(w > h && w > maxDim){ h = h * maxDim / w; w = maxDim; }
+      else if(h > maxDim){ w = w * maxDim / h; h = maxDim; }
+      canvas.width = w; canvas.height = h;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 /* ---------- 弃看 ---------- */
@@ -1439,6 +2173,7 @@ function confirmDelete(book){
     body:'《'+esc(book.title)+'》将从所有书架中永久删除，此操作不可撤销。',
     confirmText:'删除', danger:true,
     onConfirm:function(){
+      if(book.imgKeys) book.imgKeys.forEach(function(k){ if(k) deleteOriginalImage(k, function(){}); });
       state.books = state.books.filter(function(b){ return b.id!==book.id; });
       save(); renderShelves();
       if(state.view==='stats') renderStats();
@@ -1602,6 +2337,7 @@ function dynamicFields(book){
     h += '<div class="field"><label>完成日期</label><input id="f-finishDate" type="date" value="'+esc(book.finishDate||todayStr())+'"></div>';
     h += '<div class="field"><label>评分</label><div class="rating-input" id="rating-input">'+ratingButtons(book.rating||0)+'</div></div>';
     h += '</div>';
+    h += '<div class="field"><label>评价 <span class="opt">（选填）</span></label><textarea id="f-review" placeholder="写下你的感受..." rows="2" style="width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;resize:vertical">'+esc(book.review||'')+'</textarea></div>';
   }
   /* 类型（多选 chip）—— 想看/在看/已看 都有 */
   if(book.shelf!=='dropped'){
@@ -1610,8 +2346,10 @@ function dynamicFields(book){
   if(book.shelf==='dropped'){
     h += '<div class="field"><label>弃看原因 <span class="opt">（选填）</span></label><textarea id="f-notes" placeholder="为何放下这部作品...">'+esc(book.notes||'')+'</textarea></div>';
   }
-  if(book.shelf==='reading' || book.shelf==='read'){
-    h += '<div class="field"><label>笔记 / 短评 <span class="opt">（选填）</span></label><textarea id="f-notes" placeholder="摘录、感悟或一句话点评...">'+esc(book.notes||'')+'</textarea></div>';
+  if(book.shelf==='reading'){
+    h += '<div class="field"><label>简介 <span class="opt">（选填）</span></label><textarea id="f-notes" placeholder="作品简介...">'+esc(book.notes||'')+'</textarea></div>';
+  } else if(book.shelf==='read'){
+    h += '<div class="field"><label>简介 <span class="opt">（选填）</span></label><textarea id="f-notes" placeholder="作品简介...">'+esc(book.notes||'')+'</textarea></div>';
   }
   return h;
 }
@@ -1766,6 +2504,7 @@ function captureForm(book){
   if(ms) book.progressMode = ms.getAttribute('data-mode');
   var ri = document.getElementById('rating-input');
   if(ri && ri.dataset.value) book.rating = parseInt(ri.dataset.value,10);
+  book.review = val('f-review');
   return book;
 }
 
@@ -1781,7 +2520,9 @@ function collectAndSave(book, mode, orig){
     totalPages:book.totalPages, currentPage:book.currentPage,
     progressMode:book.progressMode, categories:catsOf(book).slice(),
     notes:book.notes, startDate:book.startDate, finishDate:book.finishDate,
-    rating:book.rating, shelf:book.shelf
+    rating:book.rating, shelf:book.shelf, dropReason:book.shelf==='dropped'?(book.notes||''):(book.dropReason||''),
+    images:book.images||[], imgKeys:book.imgKeys||[], review:book.review||'',
+    bgImage:book.bgImage||'', bgImageSrc:book.bgImageSrc||'', bgOpacity:book.bgOpacity||85
   };
 
   if(mode==='add'){
@@ -2009,7 +2750,7 @@ function initDrag(){
 
     var shelfHead = e.target.closest('.shelf-head');
     var bookCard = e.target.closest('.book-card');
-    var skip = e.target.closest('input, select, textarea, button[data-act], .cat-pill, .editable-date, .progress-quick, .progress-block, .act-btn');
+    var skip = e.target.closest('input, select, textarea, button[data-act], .cat-pill, .editable-date, .progress-quick, .progress-block, .act-btn, [data-act="edit-review"], [data-act="edit-drop-reason"], [data-act="open-detail"]');
 
     var target = null;
     if(shelfHead && !skip){
