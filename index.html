@@ -172,6 +172,9 @@ main{max-width:1280px;margin:0 auto;padding:30px 28px 90px}
   box-shadow:var(--shadow-sm);transition:transform .2s,box-shadow .2s;
 }
 .book-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.card-timer-btn{position:absolute;top:8px;right:8px;z-index:2;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.75);backdrop-filter:blur(4px);color:var(--accent3);border:1px solid var(--rule);cursor:pointer;transition:all .15s;padding:0}
+.card-timer-btn:hover{background:var(--bg3);border-color:var(--accent3);color:var(--accent3)}
+.card-timer-btn svg{width:16px;height:16px}
 .book-cover-wrap{
   position:relative;height:148px;overflow:hidden;
   background:linear-gradient(135deg,var(--accent2),#dcc4b5);
@@ -484,6 +487,15 @@ body.is-dragging *{cursor:grabbing!important}
 .chart-card{background:var(--bg3);border:1px solid var(--rule);border-radius:var(--radius);padding:20px 22px;box-shadow:var(--shadow-sm)}
 .chart-card h3{font-family:'Lora',serif;font-size:16px;font-weight:700;margin-bottom:3px}
 .chart-card .chart-sub{font-size:12px;color:var(--muted);margin-bottom:14px}
+.chart-card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.chart-collapse-btn{font-size:11px;color:var(--muted2);background:none;border:1px solid var(--rule);border-radius:6px;padding:2px 10px;cursor:pointer;transition:all .15s}
+.chart-collapse-btn:hover{color:var(--accent3);border-color:var(--accent3)}
+.chart-card.collapsed .chart-box,.chart-card.collapsed .chart-sub,.chart-card.collapsed h3{display:none}
+.chart-card.collapsed .chart-card-head{margin-bottom:0}
+.period-tabs{display:flex;gap:2px;background:var(--bg2);border-radius:8px;padding:2px}
+.period-tab{padding:4px 12px;border:none;background:none;border-radius:6px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .15s}
+.period-tab.active{background:var(--bg3);color:var(--accent3);box-shadow:var(--shadow-sm)}
+.chart-year-select{font-size:12px;padding:4px 8px;border:1px solid var(--rule);border-radius:6px;background:var(--bg);color:var(--ink-soft);cursor:pointer}
 .chart-box{width:100%;height:280px}
 .chart-box.tall{height:320px}
 .chart-empty{height:280px;display:grid;place-items:center;color:var(--muted2);font-size:13px;text-align:center;gap:8px}
@@ -505,7 +517,31 @@ body.is-dragging *{cursor:grabbing!important}
 .modal-close{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--muted);transition:all .15s;flex-shrink:0}
 .modal-close:hover{background:var(--rule-soft);color:var(--ink)}
 .modal-close svg{width:18px;height:18px}
+.modal-head-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.modal-head-btn{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;color:var(--muted);transition:all .15s;background:none;border:none;cursor:pointer}
+.modal-head-btn:hover{background:var(--rule-soft);color:var(--accent3)}
+.modal-head-btn svg{width:18px;height:18px}
 .modal-body{padding:8px 24px 24px}
+.detail-total-time{float:right;font-size:12px;font-weight:600;color:var(--accent3);margin-right:4px}
+.detail-timer-list{margin-top:8px;max-height:999px;overflow:hidden;transition:max-height .3s}
+.detail-timer-list.collapsed{max-height:96px}
+.detail-timer-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--rule);font-size:13px}
+.detail-timer-item:last-child{border-bottom:none}
+.detail-timer-item .timer-date{color:var(--muted)}
+.detail-timer-item .timer-dur{font-weight:600;color:var(--ink-soft)}
+.timer-display{font-size:48px;font-weight:700;font-family:'Lora',serif;text-align:center;color:var(--ink);letter-spacing:2px}
+.timer-controls{display:flex;gap:12px;justify-content:center;margin-top:20px}
+.timer-btn{padding:12px 28px;border-radius:12px;border:none;font-size:15px;font-weight:600;cursor:pointer;transition:all .15s}
+.timer-btn:active{transform:scale(.95)}
+.timer-btn.primary{background:var(--accent3);color:#fff}
+.timer-btn.danger{background:var(--dropped);color:#fff}
+.timer-btn.ghost{background:var(--bg2);color:var(--ink-soft)}
+.timer-note{text-align:center;font-size:13px;color:var(--muted);margin-top:12px}
+.timer-add-btn{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;padding:8px;margin-top:8px;border:1px dashed var(--rule);border-radius:8px;background:none;color:var(--muted);font-size:13px;cursor:pointer;transition:all .15s}
+.timer-add-btn:hover{border-color:var(--accent3);color:var(--accent3)}
+.timer-add-btn svg{width:14px;height:14px}
+.detail-timer-empty{text-align:center;padding:12px;color:var(--muted2);font-size:13px}
+.detail-timer-item{user-select:none}
 
 .field{margin-bottom:16px}
 .field:last-child{margin-bottom:0}
@@ -743,27 +779,46 @@ body.is-dragging *{cursor:grabbing!important}
       <select class="year-select" id="year-select"></select>
       <span class="legend">完成节奏按完成时间统计</span>
     </div>
+    <div class="chart-row" style="grid-template-columns:1fr">
+      <div class="chart-card" id="card-duration">
+        <div class="chart-card-head">
+          <button class="chart-collapse-btn" data-collapse="card-duration">收起</button>
+          <div class="period-tabs" id="duration-period">
+            <button class="period-tab active" data-period="day">日</button>
+            <button class="period-tab" data-period="week">周</button>
+            <button class="period-tab" data-period="month">月</button>
+            <button class="period-tab" data-period="year">年</button>
+          </div>
+        </div>
+        <h3>时长统计</h3>
+        <p class="chart-sub">每天/周/月/年的计时时长</p>
+        <div class="chart-box" id="chart-duration"></div>
+      </div>
+    </div>
     <div class="chart-row">
-      <div class="chart-card">
+      <div class="chart-card" id="card-monthly">
+        <div class="chart-card-head">
+          <button class="chart-collapse-btn" data-collapse="card-monthly">收起</button>
+          <select class="chart-year-select" id="monthly-year-select"></select>
+        </div>
         <h3>月度完成节奏</h3>
         <p class="chart-sub">每月完成的作品数量</p>
         <div class="chart-box" id="chart-monthly"></div>
       </div>
-      <div class="chart-card">
+      <div class="chart-card" id="card-media">
+        <div class="chart-card-head">
+          <button class="chart-collapse-btn" data-collapse="card-media">收起</button>
+        </div>
         <h3>作品类型分布</h3>
         <p class="chart-sub">书籍 / 影视 / 动漫 / 漫画占比</p>
         <div class="chart-box" id="chart-media"></div>
       </div>
     </div>
     <div class="chart-row" style="grid-template-columns:1fr">
-      <div class="chart-card">
-        <h3>分类分布</h3>
-        <p class="chart-sub">点击扇区可筛选对应类型</p>
-        <div class="chart-box" id="chart-category"></div>
-      </div>
-    </div>
-    <div class="chart-row" style="grid-template-columns:1fr">
-      <div class="chart-card">
+      <div class="chart-card" id="card-progress">
+        <div class="chart-card-head">
+          <button class="chart-collapse-btn" data-collapse="card-progress">收起</button>
+        </div>
         <h3>在看进度</h3>
         <p class="chart-sub">当前正在追的每一部，进度一目了然</p>
         <div class="chart-box tall" id="chart-progress"></div>
@@ -805,6 +860,38 @@ window.addEventListener('resize', function(){
   Object.keys(instances).forEach(function(id){ if(instances[id]) instances[id].resize(); });
 });
 
+function renderDuration(stats){
+  var accent3 = css('--accent3') || '#7A4A54';
+  var muted = css('--muted') || '#8C7F73';
+  var rule = css('--rule') || '#E9DFD3';
+  var dd = stats.durationData || { labels:[], data:[] };
+  var period = stats.durationPeriod || 'day';
+  var totalMin = dd.data.reduce(function(a,b){return a+b;},0);
+  if(totalMin===0){
+    var periodLabel = {day:'最近30天',week:'本月',month:'本年',year:'最近5年'}[period] || '';
+    showEmpty('chart-duration', periodLabel+'暂无计时数据');
+    return;
+  }
+  var c = ensure('chart-duration');
+  if(!c) return;
+  c.setOption({
+    grid:{ left:40, right:16, top:24, bottom:30 },
+    tooltip:{ trigger:'axis', appendToBody:true, axisPointer:{ type:'shadow', shadowStyle:{ color:'rgba(122,74,84,.08)' } },
+      formatter:function(p){ return p[0].name+'<br/>时长 <b>'+p[0].value+'</b> 分钟'; } },
+    xAxis:{ type:'category', data:dd.labels, axisTick:{ show:false }, axisLine:{ lineStyle:{ color:rule } },
+      axisLabel:{ color:muted, fontSize:10, interval: period==='day' ? 4 : 0 } },
+    yAxis:{ type:'value', splitLine:{ lineStyle:{ color:rule, type:'dashed' } },
+      axisLabel:{ color:muted, fontSize:11, formatter:function(v){ return v+'分'; } } },
+    series:[{
+      type:'bar', data:dd.data, barWidth:'52%',
+      itemStyle:{ borderRadius:[6,6,0,0], color:{ type:'linear', x:0,y:0,x2:0,y2:1,
+        colorStops:[{ offset:0, color:'#9c5f6c' },{ offset:1, color:accent3 }] } },
+      emphasis:{ itemStyle:{ color:'#8d5862' } },
+      label:{ show:true, position:'top', color:accent3, fontSize:10, fontWeight:600, formatter:function(p){ return p.value?p.value:''; } }
+    }]
+  });
+}
+
 function render(stats){
   var accent = css('--accent') || '#98A9BC';
   var accent2 = css('--accent2') || '#E8CFC1';
@@ -817,6 +904,9 @@ function render(stats){
   var read = css('--read') || '#8B9A77';
   var dropped = css('--dropped') || '#A39B91';
   var bookC = '#98A9BC', filmC = '#7A4A54', animeC = '#8B9A77', mangaC = '#b08a76';
+
+  /* ---------- 0. 时长统计 ---------- */
+  renderDuration(stats);
 
   /* ---------- 1. 月度完成节奏 ---------- */
   var months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
@@ -870,37 +960,7 @@ function render(stats){
     });
   }
 
-  /* ---------- 3. 分类分布 ---------- */
-  var catNames = Object.keys(stats.cats || {});
-  if(catNames.length===0){
-    showEmpty('chart-category', '为作品设置类型后展示');
-  } else {
-    var catData = catNames.map(function(n){ return { name:n, value:stats.cats[n] }; });
-    var palette = [accent3, accent, read, accent2, dropped, mangaC, '#5E7084', filmC];
-    var c3 = ensure('chart-category');
-    c3.setOption({
-      tooltip:{ trigger:'item', appendToBody:true, formatter:'{b}<br/>{c} 部 ({d}%)<br/>点击筛选该类型' },
-      legend:{ orient:'vertical', right:'5%', top:'center', icon:'circle', itemWidth:10, itemHeight:10,
-        textStyle:{ color:muted, fontSize:13 } },
-      color:palette,
-      series:[{
-        type:'pie', radius:['42%','68%'], center:['35%','50%'], avoidLabelOverlap:true, padAngle:2,
-        itemStyle:{ borderRadius:6, borderColor:'#fff', borderWidth:2 },
-        label:{ show:false }, labelLine:{ show:false },
-        emphasis:{ scale:true, scaleSize:6, label:{ show:true, position:'center', fontWeight:700, color:ink, formatter:'{b}\n{c}部\n点击筛选' } },
-        data:catData
-      }]
-    });
-    c3.off('click');
-    c3.on('click', function(params){
-      if(params.name && window.Yueji && window.Yueji.filterByCat){
-        window.Yueji.filterByCat(params.name);
-      }
-    });
-    c3.setOption({ graphic:[] });
-  }
-
-  /* ---------- 4. 在看进度 ---------- */
+  /* ---------- 3. 在看进度 ---------- */
   var rl = stats.readingList || [];
   if(rl.length===0){
     showEmpty('chart-progress', '暂无在看作品');
@@ -925,7 +985,7 @@ function render(stats){
   }
 }
 
-window.Charts = { render: render };
+window.Charts = { render: render, renderDuration: renderDuration };
 
 })();
 
@@ -996,11 +1056,13 @@ var I = {
   pages:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
   empty:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
   filter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
-  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>'
+  search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>',
+  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  timer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6M12 5V2"/></svg>'
 };
 
 /* ---------- 状态 ---------- */
-var state = { books:[], view:'shelves', collapsed:{}, year:null, filterCat:null, filterMedia:null, filterShelf:null, filterAuthor:null, searchQ:'', shelfOrder:null };
+var state = { books:[], view:'shelves', collapsed:{}, year:null, filterCat:null, filterMedia:null, filterShelf:null, filterAuthor:null, searchQ:'', shelfOrder:null, durationPeriod:'day', collapsedCharts:{} };
 var formCats = [];        /* 当前表单可用的类型池（按媒体类型） */
 var currentDraft = null;  /* 当前表单草稿对象 */
 
@@ -1053,6 +1115,25 @@ function uid(){ return 'b'+Date.now().toString(36)+Math.random().toString(36).sl
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function fmtDateShort(s){ if(!s) return ''; var p=String(s).split('-'); if(p.length<3) return s; return parseInt(p[1],10)+'月'+parseInt(p[2],10)+'日'; }
+function fmtDateFull(s){ if(!s) return ''; var p=String(s).split('-'); if(p.length<3) return s; return p[0]+'年'+parseInt(p[1],10)+'月'+parseInt(p[2],10)+'日'; }
+function fmtDuration(sec){
+  sec = Math.floor(sec || 0);
+  var h = Math.floor(sec/3600), m = Math.floor((sec%3600)/60), s = sec%60;
+  if(h>0) return h+'小时'+m+'分钟'+s+'秒';
+  if(m>0) return m+'分钟'+s+'秒';
+  return s+'秒';
+}
+function fmtTimerHMS(sec){
+  sec = Math.floor(sec || 0);
+  var h = String(Math.floor(sec/3600)).padStart(2,'0');
+  var m = String(Math.floor((sec%3600)/60)).padStart(2,'0');
+  var s = String(sec%60).padStart(2,'0');
+  return h+':'+m+':'+s;
+}
+function bookTotalTime(b){
+  if(!b.timers || !b.timers.length) return 0;
+  return b.timers.reduce(function(s,t){ return s + (t.seconds||0); }, 0);
+}
 function yearOf(s){ if(!s) return null; return parseInt(String(s).split('-')[0],10); }
 function mediaOf(b){ return MEDIA[b.mediaType] || MEDIA.book; }
 function verbOf(b){ return mediaOf(b).verb; }
@@ -1234,6 +1315,7 @@ function bookCard(b){
   var bgClass = b.bgImage ? ' has-bg' : '';
   var bgStyle = b.bgImage ? ";--card-bg:url('"+b.bgImage+"');--card-bg-opacity:"+((b.bgOpacity||85)/100) : '';
   var h = '<article class="book-card'+(b.shelf==='dropped'?' is-dropped':'')+bgClass+'" data-id="'+b.id+'" style="--c:'+c+bgStyle+'">';
+  if(b.shelf==='reading') h += '<button class="card-timer-btn" data-act="timer" title="计时">'+I.timer+'</button>';
   h += '<div class="book-cover-wrap">'+coverHTML(b);
   h += '<span class="book-media-badge" style="--c:'+m.color+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+m.icon+'</svg>'+m.short+'</span>';
   h += '</div>';
@@ -1284,6 +1366,8 @@ function bookCard(b){
     h += '<span class="meta-item editable-date" data-act="edit-date" data-field="finishDate" title="点击修改完成日期">'+I.calendar+fmtDateShort(b.finishDate)+'</span>';
     if(b.rating>0) h += '<span data-act="edit-review" title="点击修改评价" class="editable-review">'+starsHTML(b.rating)+'</span>';
     if(b.totalPages>0) h += '<span class="meta-item">'+I.pages+b.totalPages+unitOf(b)+'</span>';
+    var totalT = bookTotalTime(b);
+    if(totalT > 0) h += '<span class="meta-item" title="总用时">'+I.clock+fmtDuration(totalT)+'</span>';
     h += '</div>';
     if(b.review){
       h += '<div class="book-review editable-review" data-act="edit-review" title="点击修改评价">'+esc(b.review)+'</div>';
@@ -1388,6 +1472,7 @@ function bindEvents(){
     else if(act==='edit-review'){ showReviewDialog(book); }
     else if(act==='edit-drop-reason'){ editDropReason(book); }
     else if(act==='open-detail'){ openDetailModal(book); }
+    else if(act==='timer'){ openTimerModal(book); }
   });
 
   document.addEventListener('keydown', function(e){
@@ -1746,13 +1831,35 @@ function openDetailModal(book){
     html += '</div>';
   }
 
+  /* 计时记录 */
+  var timers = book.timers || [];
+  var totalSec = timers.reduce(function(s,t){ return s + (t.seconds||0); }, 0);
+  if(timers.length > 0 || book.shelf==='reading'){
+    html += '<div class="detail-section">';
+    html += '<div class="detail-section-title">'+I.clock+'计时记录<span class="detail-total-time">总时长 '+fmtDuration(totalSec)+'</span></div>';
+    var needTimerToggle = timers.length > 3;
+    html += '<div class="detail-timer-list'+(needTimerToggle?' collapsed':'')+'" id="detail-timer-list">';
+    if(timers.length === 0){
+      html += '<div class="detail-timer-empty">暂无计时记录</div>';
+    } else {
+      timers.forEach(function(t, idx){
+        var d = t.date ? fmtDateFull(t.date) : '';
+        html += '<div class="detail-timer-item" data-timer-idx="'+idx+'"><span class="timer-date">'+d+'</span><span class="timer-dur">'+fmtDuration(t.seconds||0)+'</span></div>';
+      });
+    }
+    html += '</div>';
+    if(needTimerToggle) html += '<span class="synopsis-toggle" id="timer-toggle">展开</span>';
+    html += '<button class="timer-add-btn" id="timer-add-btn">'+I.plus+'<span>添加记录</span></button>';
+    html += '</div>';
+  }
+
   /* 日期 */
   html += '<div class="detail-section">';
   html += '<div class="detail-section-title">日期</div>';
   html += '<div style="font-size:13px;color:var(--muted);line-height:1.8">';
-  html += '添加：'+fmtDateShort(book.addedDate)+'<br>';
   if(book.startDate) html += '开始：'+fmtDateShort(book.startDate)+'<br>';
   if(book.finishDate) html += '完成：'+fmtDateShort(book.finishDate);
+  if(!book.startDate && !book.finishDate) html += '暂无日期记录';
   html += '</div></div>';
 
   html += '</div>';
@@ -1778,6 +1885,66 @@ function openDetailModal(book){
       }
     });
   }
+
+  /* 计时记录展开/收起 */
+  var timerToggle = document.getElementById('timer-toggle');
+  var timerList = document.getElementById('detail-timer-list');
+  if(timerToggle && timerList){
+    timerToggle.addEventListener('click', function(){
+      if(timerList.classList.contains('collapsed')){
+        timerList.classList.remove('collapsed');
+        timerToggle.textContent = '收起';
+      } else {
+        timerList.classList.add('collapsed');
+        timerToggle.textContent = '展开';
+      }
+    });
+  }
+
+  /* 添加计时记录 */
+  var timerAddBtn = document.getElementById('timer-add-btn');
+  if(timerAddBtn){
+    timerAddBtn.addEventListener('click', function(){
+      openAddTimerModal(book);
+    });
+  }
+
+  /* 长按删除计时记录 */
+  document.querySelectorAll('[data-timer-idx]').forEach(function(item){
+    var pressTimer = null;
+    item.addEventListener('touchstart', function(){
+      pressTimer = setTimeout(function(){
+        pressTimer = null;
+        var idx = parseInt(item.getAttribute('data-timer-idx'), 10);
+        if(!book.timers || !book.timers[idx]) return;
+        var t = book.timers[idx];
+        if(confirm('删除这条记录？\n'+(t.date||'')+' · '+fmtDuration(t.seconds||0))){
+          book.timers.splice(idx, 1);
+          save(); renderShelves();
+          closeModal(); openDetailModal(book);
+          toast('记录已删除','info');
+        }
+      }, 500);
+    });
+    item.addEventListener('touchend', function(){ if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; } });
+    item.addEventListener('touchmove', function(){ if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; } });
+    item.addEventListener('mousedown', function(){
+      pressTimer = setTimeout(function(){
+        pressTimer = null;
+        var idx = parseInt(item.getAttribute('data-timer-idx'), 10);
+        if(!book.timers || !book.timers[idx]) return;
+        var t = book.timers[idx];
+        if(confirm('删除这条记录？\n'+(t.date||'')+' · '+fmtDuration(t.seconds||0))){
+          book.timers.splice(idx, 1);
+          save(); renderShelves();
+          closeModal(); openDetailModal(book);
+          toast('记录已删除','info');
+        }
+      }, 500);
+    });
+    item.addEventListener('mouseup', function(){ if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; } });
+    item.addEventListener('mouseleave', function(){ if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; } });
+  });
 
   /* 图片上传 */
   var uploadBtn = document.getElementById('detail-upload-btn');
@@ -1881,7 +2048,7 @@ function openDetailModal(book){
       if(book.imgKeys && book.imgKeys[idx]) deleteOriginalImage(book.imgKeys[idx], function(){});
       book.images.splice(idx, 1);
       if(book.imgKeys) book.imgKeys.splice(idx, 1);
-      save();
+      save(); renderShelves();
       closeModal();
       openDetailModal(book);
       toast('图片已删除','success');
@@ -1896,6 +2063,115 @@ function openDetailModal(book){
       var clickIdx = parseInt(imgEl.getAttribute('data-idx'), 10) || 0;
       openImageViewer(allImages, clickIdx, allKeys);
     });
+  });
+}
+
+/* 计时器 */
+function openTimerModal(book){
+  var elapsed = 0, intervalId = null;
+  var sessionStart = 0, sessionBase = 0;
+  var html = '';
+  html += '<div class="modal-head"><div><h3>计时 · '+esc(book.title)+'</h3></div>';
+  html += '<button class="modal-close" data-close="1">'+I.close+'</button></div>';
+  html += '<div class="modal-body" style="padding:32px 24px;text-align:center">';
+  html += '<div class="timer-display" id="timer-display">00:00:00</div>';
+  html += '<p class="timer-note" id="timer-note">点击开始计时</p>';
+  html += '<div class="timer-controls">';
+  html += '<button class="timer-btn primary" id="timer-start">开始</button>';
+  html += '<button class="timer-btn ghost" id="timer-pause" style="display:none">暂停</button>';
+  html += '<button class="timer-btn danger" id="timer-stop" style="display:none">结束并保存</button>';
+  html += '</div>';
+  html += '</div>';
+  html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">返回</button></div>';
+  openModal(html, 'confirm');
+
+  var display = document.getElementById('timer-display');
+  var note = document.getElementById('timer-note');
+  var startBtn = document.getElementById('timer-start');
+  var pauseBtn = document.getElementById('timer-pause');
+  var stopBtn = document.getElementById('timer-stop');
+  var closed = false;
+
+  document.querySelectorAll('[data-close]').forEach(function(b){
+    b.addEventListener('click', function(){
+      closed = true;
+      if(intervalId) clearInterval(intervalId);
+      closeModal();
+    });
+  });
+
+  function updateDisplay(){
+    display.textContent = fmtTimerHMS(elapsed);
+  }
+  function start(){
+    startBtn.style.display = 'none';
+    pauseBtn.style.display = '';
+    stopBtn.style.display = '';
+    note.textContent = '计时中…';
+    sessionStart = Date.now();
+    intervalId = setInterval(function(){
+      if(closed) return;
+      elapsed = sessionBase + Math.floor((Date.now() - sessionStart) / 1000);
+      updateDisplay();
+    }, 250);
+  }
+  function pause(){
+    if(intervalId){ clearInterval(intervalId); intervalId = null; }
+    sessionBase = elapsed;
+    pauseBtn.style.display = 'none';
+    startBtn.textContent = '继续';
+    startBtn.style.display = '';
+    note.textContent = '已暂停';
+  }
+  function stop(){
+    if(intervalId){ clearInterval(intervalId); intervalId = null; }
+    closed = true;
+    if(elapsed > 0){
+      if(!book.timers) book.timers = [];
+      book.timers.push({ date: todayStr(), seconds: elapsed });
+      save(); renderShelves();
+      toast('已记录 '+fmtDuration(elapsed),'success');
+      closeModal();
+    } else {
+      closeModal();
+      toast('计时太短，未保存','info');
+    }
+  }
+  startBtn.addEventListener('click', start);
+  pauseBtn.addEventListener('click', pause);
+  stopBtn.addEventListener('click', stop);
+}
+
+/* 手动添加计时记录 */
+function openAddTimerModal(book){
+  var html = '';
+  html += '<div class="modal-head"><div><h3>添加计时记录</h3></div>';
+  html += '<button class="modal-close" data-close="1">'+I.close+'</button></div>';
+  html += '<div class="modal-body" style="padding:20px">';
+  html += '<div class="field"><label>日期</label><input type="date" id="add-timer-date" value="'+todayStr()+'"></div>';
+  html += '<div class="field"><label>时长</label>';
+  html += '<div style="display:flex;gap:12px;align-items:center">';
+  html += '<input type="number" id="add-timer-hours" min="0" max="23" value="0" style="width:80px;text-align:center">';
+  html += '<span style="color:var(--muted)">小时</span>';
+  html += '<input type="number" id="add-timer-mins" min="0" max="59" value="30" style="width:80px;text-align:center">';
+  html += '<span style="color:var(--muted)">分钟</span>';
+  html += '</div></div>';
+  html += '</div>';
+  html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">取消</button>';
+  html += '<button class="btn btn-primary" id="add-timer-save">保存</button></div>';
+  openModal(html, 'confirm');
+  document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeModal); });
+  document.getElementById('add-timer-save').addEventListener('click', function(){
+    var date = document.getElementById('add-timer-date').value || todayStr();
+    var hours = parseInt(document.getElementById('add-timer-hours').value, 10) || 0;
+    var mins = parseInt(document.getElementById('add-timer-mins').value, 10) || 0;
+    var seconds = hours * 3600 + mins * 60;
+    if(seconds <= 0){ toast('时长不能为0','warn'); return; }
+    if(!book.timers) book.timers = [];
+    book.timers.push({ date: date, seconds: seconds });
+    save(); renderShelves();
+    closeModal(); openDetailModal(book);
+    toast('已添加 '+fmtDuration(seconds),'success');
   });
 }
 
@@ -2533,7 +2809,7 @@ function collectAndSave(book, mode, orig){
     progressMode:book.progressMode, categories:catsOf(book).slice(),
     notes:book.notes, startDate:book.startDate, finishDate:book.finishDate,
     rating:book.rating, shelf:book.shelf, dropReason:book.shelf==='dropped'?(book.notes||''):(book.dropReason||''),
-    images:book.images||[], imgKeys:book.imgKeys||[], review:book.review||'',
+    images:book.images||[], imgKeys:book.imgKeys||[], timers:book.timers||[], review:book.review||'',
     bgImage:book.bgImage||'', bgImageSrc:book.bgImageSrc||'', bgOpacity:book.bgOpacity||85
   };
 
@@ -2710,8 +2986,83 @@ function getStats(year){
   return {
     counts:counts, total:books.length, readBooks:readBooks, yearRead:yearRead,
     monthly:monthly, cats:cats, mediaCounts:mediaCounts, avgRating:avgRating,
-    ratingDist:ratingDist, readingList:readingList, avgProgress:avgProgress, year:year
+    ratingDist:ratingDist, readingList:readingList, avgProgress:avgProgress, year:year,
+    allTimers:getAllTimers()
   };
+}
+
+/* 收集所有计时数据（仅在看作品） */
+function getAllTimers(){
+  var all = [];
+  state.books.forEach(function(b){
+    if(b.shelf==='reading' && b.timers){
+      b.timers.forEach(function(t){
+        if((t.seconds||0) >= 60){
+          all.push({ date:t.date||todayStr(), seconds:t.seconds||0, title:b.title });
+        }
+      });
+    }
+  });
+  return all;
+}
+
+/* 按周期聚合计时数据 */
+function aggregateTimers(timers, period, year){
+  var result = { labels:[], data:[] };
+  if(period==='day'){
+    /* 最近30天 */
+    var now = new Date();
+    for(var i=29; i>=0; i--){
+      var d = new Date(now); d.setDate(d.getDate()-i);
+      var ds = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+      var total = 0;
+      timers.forEach(function(t){ if(t.date===ds) total += t.seconds; });
+      result.labels.push((d.getMonth()+1)+'/'+d.getDate());
+      result.data.push(Math.round(total/60));
+    }
+  } else if(period==='week'){
+    /* 当前月的各周（每7天为一周） */
+    var now = new Date();
+    var cy = now.getFullYear(), cm = now.getMonth();
+    var daysInMonth = new Date(cy, cm+1, 0).getDate();
+    var numWeeks = Math.ceil(daysInMonth / 7);
+    for(var w=0; w<numWeeks; w++){
+      var startDay = w*7 + 1;
+      var endDay = Math.min((w+1)*7, daysInMonth);
+      var wsStr = cy+'-'+String(cm+1).padStart(2,'0')+'-'+String(startDay).padStart(2,'0');
+      var weStr = cy+'-'+String(cm+1).padStart(2,'0')+'-'+String(endDay).padStart(2,'0');
+      var total = 0;
+      timers.forEach(function(t){ if(t.date>=wsStr && t.date<=weStr) total += t.seconds; });
+      result.labels.push('第'+(w+1)+'周');
+      result.data.push(Math.round(total/60));
+    }
+  } else if(period==='month'){
+    /* 选中年的12个月 */
+    var months = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+    var monthData = [0,0,0,0,0,0,0,0,0,0,0,0];
+    timers.forEach(function(t){
+      var p = t.date.split('-');
+      if(parseInt(p[0],10)===year && p.length>=2){
+        var m = parseInt(p[1],10)-1;
+        if(m>=0 && m<12) monthData[m] += t.seconds;
+      }
+    });
+    result.labels = months;
+    result.data = monthData.map(function(s){ return Math.round(s/60); });
+  } else if(period==='year'){
+    /* 最近5年 */
+    var curY = new Date().getFullYear();
+    for(var i=4; i>=0; i--){
+      var y = curY-i;
+      var total = 0;
+      timers.forEach(function(t){
+        if(parseInt(t.date.split('-')[0],10)===y) total += t.seconds;
+      });
+      result.labels.push(String(y));
+      result.data.push(Math.round(total/60));
+    }
+  }
+  return result;
 }
 
 function renderStats(){
@@ -2725,7 +3076,52 @@ function renderStats(){
   sel.innerHTML = yearList.map(function(y){ return '<option value="'+y+'"'+(y===state.year?' selected':'')+'>'+y+' 年</option>'; }).join('');
   sel.onchange = function(){ state.year = parseInt(sel.value,10); renderStats(); };
 
+  /* 月度完成节奏的年份选择器 */
+  var msel = document.getElementById('monthly-year-select');
+  if(msel){
+    msel.innerHTML = yearList.map(function(y){ return '<option value="'+y+'"'+(y===state.year?' selected':'')+'>'+y+'年</option>'; }).join('');
+    msel.onchange = function(){ state.year = parseInt(msel.value,10); renderStats(); };
+  }
+
+  /* 收起/展开按钮 */
+  document.querySelectorAll('[data-collapse]').forEach(function(btn){
+    var cardId = btn.getAttribute('data-collapse');
+    var card = document.getElementById(cardId);
+    if(card && state.collapsedCharts[cardId]){
+      card.classList.add('collapsed');
+      btn.textContent = '展开';
+    } else {
+      btn.textContent = '收起';
+    }
+    btn.onclick = function(){
+      if(card){
+        var isCollapsed = card.classList.toggle('collapsed');
+        state.collapsedCharts[cardId] = isCollapsed;
+        btn.textContent = isCollapsed ? '展开' : '收起';
+      }
+    };
+  });
+
+  /* 时长统计周期切换 */
+  document.querySelectorAll('#duration-period .period-tab').forEach(function(tab){
+    if(tab.getAttribute('data-period')===state.durationPeriod) tab.classList.add('active');
+    else tab.classList.remove('active');
+    tab.onclick = function(){
+      state.durationPeriod = tab.getAttribute('data-period');
+      document.querySelectorAll('#duration-period .period-tab').forEach(function(t){ t.classList.remove('active'); });
+      tab.classList.add('active');
+      var stats2 = getStats(state.year);
+      stats2.durationPeriod = state.durationPeriod;
+      stats2.durationData = aggregateTimers(stats2.allTimers||[], state.durationPeriod, state.year);
+      ensureEcharts(function(){
+        if(window.Charts && window.Charts.renderDuration) window.Charts.renderDuration(stats2);
+      });
+    };
+  });
+
   var stats = getStats(state.year);
+  stats.durationPeriod = state.durationPeriod;
+  stats.durationData = aggregateTimers(stats.allTimers||[], state.durationPeriod, state.year);
   var grid = document.getElementById('stat-grid');
   var cards = [
     { num:stats.counts.read, label:'已完成', c: SHELVES.read.color },
@@ -2739,7 +3135,7 @@ function renderStats(){
     return '<div class="stat-card" style="--c:'+c.c+'"><div class="stat-bar" style="--c:'+c.c+'"></div><div class="stat-num">'+c.num+(c.suffix?'<small>'+c.suffix+'</small>':'')+'</div><div class="stat-label">'+c.label+'</div></div>';
   }).join('');
 
-  ['chart-monthly','chart-media','chart-category','chart-rating','chart-progress'].forEach(function(id){
+  ['chart-duration','chart-monthly','chart-media','chart-progress'].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.innerHTML = '<div class="chart-empty"><span>图表加载中…</span></div>';
   });
