@@ -1359,6 +1359,7 @@ function bookCard(b){
   h += '<div class="book-body">';
   var titleClickable = (b.shelf==='reading' || b.shelf==='read');
   h += '<div class="book-title'+(titleClickable?' clickable-title':'')+'"'+(titleClickable?' data-act="open-detail" title="点击查看详情"':'')+'>'+esc(b.title)+'</div>';
+  if(b.shelf==='read' && b.rating>0) h += '<div class="editable-review" style="margin-top:1px" data-act="edit-review" title="点击修改评价">'+starsHTML(b.rating)+'</div>';
   if(b.author){
     var authorActive = state.filterAuthor===b.author;
     h += '<div class="book-author'+(authorActive?' active':'')+'" data-act="filter-author" data-author="'+esc(b.author)+'">'+I.user+esc(b.author)+'</div>';
@@ -1402,7 +1403,6 @@ function bookCard(b){
     h += '<div class="book-meta-row">';
     h += '<span class="meta-item editable-date" data-act="edit-date" data-field="finishDate" title="点击修改完成日期">'+I.calendar+fmtDateShort(b.finishDate)+'</span>';
     if(b.totalPages>0) h += '<span class="meta-item">'+I.pages+b.totalPages+unitOf(b)+'</span>';
-    if(b.rating>0) h += '<span class="meta-item editable-review" data-act="edit-review" title="点击修改评价">'+starsHTML(b.rating)+'</span>';
     var totalT = bookTotalTime(b);
     if(totalT > 0) h += '<span class="meta-item" title="总用时">'+I.clock+fmtDuration(totalT)+'</span>';
     h += '</div>';
@@ -1925,13 +1925,13 @@ function openDetailModal(book){
 
   /* 已看：评分+评价 */
   if(book.shelf==='read'){
-    if(book.rating>0 || book.review){
-      html += '<div class="detail-section">';
-      html += '<div class="detail-section-title">评价</div>';
-      if(book.rating>0) html += '<div style="margin-bottom:6px">'+starsHTML(book.rating)+'</div>';
-      if(book.review) html += '<div class="detail-review-box">'+esc(book.review)+'</div>';
-      html += '</div>';
-    }
+    html += '<div class="detail-section">';
+    html += '<div class="detail-section-title">评价</div>';
+    html += '<div id="detail-review-area" style="cursor:pointer" title="点击修改评价">';
+    if(book.rating>0) html += '<div style="margin-bottom:6px">'+starsHTML(book.rating)+'</div>';
+    if(book.review) html += '<div class="detail-review-box">'+esc(book.review)+'</div>';
+    if(!book.rating && !book.review) html += '<div class="add-review-hint">+ 添加评价</div>';
+    html += '</div></div>';
   }
 
   /* 弃看：弃看理由 */
@@ -1979,6 +1979,8 @@ function openDetailModal(book){
 
   /* 事件绑定 */
   document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeModal); });
+  var dra = document.getElementById('detail-review-area');
+  if(dra) dra.addEventListener('click', function(){ showReviewDialog(book); });
 
   /* 简介展开/收起 */
   var toggle = document.getElementById('synopsis-toggle');
