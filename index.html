@@ -272,8 +272,8 @@ main{max-width:1280px;margin:0 auto;padding:30px 28px 90px}
 }
 .btn-mini:hover{background:#8d5862}
 
-.book-meta-row{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);flex-wrap:wrap}
-.meta-item{display:flex;align-items:center;gap:4px}
+.book-meta-row{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted);flex-wrap:nowrap}
+.meta-item{display:flex;align-items:center;gap:4px;flex-shrink:0;white-space:nowrap}
 .meta-item svg{width:12px;height:12px;color:var(--muted2)}
 .rating-stars{display:flex;gap:1px}
 .rating-stars svg{width:13px;height:13px;color:var(--accent3)}
@@ -741,6 +741,7 @@ body.is-dragging *{cursor:grabbing!important}
   .book-actions{margin-top:4px}
   .book-title{font-size:16px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
   .book-author{font-size:13px}
+  .book-meta-row{font-size:13px}
   .book-cats{gap:4px;max-height:22px;overflow:hidden}
   .cat-pill{font-size:11px;padding:2px 7px}
   .progress-block{margin-top:1px}
@@ -1145,7 +1146,7 @@ function saveShelfOrder(){ try{ localStorage.setItem(SHELF_ORDER_KEY, JSON.strin
 function uid(){ return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function fmtDateShort(s){ if(!s) return ''; var p=String(s).split('-'); if(p.length<3) return s; return p[0]+'年'+parseInt(p[1],10)+'月'+parseInt(p[2],10)+'日'; }
+function fmtDateShort(s){ if(!s) return ''; var p=String(s).split('-'); if(p.length<3) return s; return p[0]+'.'+parseInt(p[1],10)+'.'+parseInt(p[2],10); }
 function fmtDateFull(s){ if(!s) return ''; var p=String(s).split('-'); if(p.length<3) return s; return p[0]+'年'+parseInt(p[1],10)+'月'+parseInt(p[2],10)+'日'; }
 function fmtDuration(sec){
   sec = Math.floor(sec || 0);
@@ -1400,8 +1401,8 @@ function bookCard(b){
   if(b.shelf==='read'){
     h += '<div class="book-meta-row">';
     h += '<span class="meta-item editable-date" data-act="edit-date" data-field="finishDate" title="点击修改完成日期">'+I.calendar+fmtDateShort(b.finishDate)+'</span>';
-    if(b.rating>0) h += '<span data-act="edit-review" title="点击修改评价" class="editable-review">'+starsHTML(b.rating)+'</span>';
     if(b.totalPages>0) h += '<span class="meta-item">'+I.pages+b.totalPages+unitOf(b)+'</span>';
+    if(b.rating>0) h += '<span class="meta-item editable-review" data-act="edit-review" title="点击修改评价">'+starsHTML(b.rating)+'</span>';
     var totalT = bookTotalTime(b);
     if(totalT > 0) h += '<span class="meta-item" title="总用时">'+I.clock+fmtDuration(totalT)+'</span>';
     h += '</div>';
