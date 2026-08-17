@@ -1145,7 +1145,7 @@ function saveShelfOrder(){ try{ localStorage.setItem(SHELF_ORDER_KEY, JSON.strin
 function uid(){ return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
 function todayStr(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function fmtDateShort(s){ if(!s) return ''; var p=String(s).split('-'); if(p.length<3) return s; return parseInt(p[1],10)+'月'+parseInt(p[2],10)+'日'; }
+function fmtDateShort(s){ if(!s) return ''; var p=String(s).split('-'); if(p.length<3) return s; return p[0]+'年'+parseInt(p[1],10)+'月'+parseInt(p[2],10)+'日'; }
 function fmtDateFull(s){ if(!s) return ''; var p=String(s).split('-'); if(p.length<3) return s; return p[0]+'年'+parseInt(p[1],10)+'月'+parseInt(p[2],10)+'日'; }
 function fmtDuration(sec){
   sec = Math.floor(sec || 0);
@@ -1340,7 +1340,7 @@ function coverHTML(book){
 
 function starsHTML(n){
   var h='';
-  for(var i=1;i<=5;i++){ h += '<svg class="'+(i<=n?'':'empty')+'" viewBox="0 0 24 24" '+(i<=n?'fill="currentColor"':'fill="none"')+' stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'; }
+  for(var i=1;i<=n;i++){ h += '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'; }
   return '<span class="rating-stars">'+h+'</span>';
 }
 
@@ -1530,7 +1530,7 @@ function bindEvents(){
       var book = find(card.getAttribute('data-id'));
       if(book) quickUpdate(book, card);
     }
-    if(e.key==='Escape'){ closeModal(); }
+    if(e.key==='Escape'){ if(document.getElementById('timer-stop')) return; closeModal(); }
   });
 
   document.querySelectorAll('.nav-tab').forEach(function(b){
@@ -2194,6 +2194,12 @@ function openTimerModal(book){
   html += '</div>';
   html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">返回</button></div>';
   openModal(html, 'confirm');
+  var ov = document.getElementById('overlay');
+  if(ov){
+    var ovClone = ov.cloneNode(true);
+    ov.parentNode.replaceChild(ovClone, ov);
+    ovClone.id = 'overlay';
+  }
 
   var display = document.getElementById('timer-display');
   var note = document.getElementById('timer-note');
@@ -2605,6 +2611,25 @@ function openModal(html, cls){
   });
 }
 function closeModal(){ document.getElementById('modal-root').innerHTML=''; }
+function openSubConfirm(opt){
+  var overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200;padding:16px;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)';
+  var box = document.createElement('div');
+  box.className = 'modal confirm';
+  box.style.cssText = 'max-width:340px;width:100%';
+  var html = '<div class="modal-head"><div><h3>'+esc(opt.title)+'</h3></div></div>';
+  html += '<div class="modal-body" style="text-align:center"><div class="confirm-icon" style="--c:'+(opt.danger?'#A39B91':'#98A9BC')+'">'+I.alert+'</div>';
+  html += '<p>'+(opt.body||'')+'</p></div>';
+  html += '<div class="modal-foot"><button class="btn btn-ghost" id="sub-cancel">'+(opt.cancelText||'取消')+'</button>';
+  html += '<button class="btn '+(opt.danger?'btn-danger':'btn-primary')+'" id="sub-ok">'+esc(opt.confirmText||'确认')+'</button></div>';
+  box.innerHTML = html;
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  function done(){ document.body.removeChild(overlay); }
+  overlay.querySelector('#sub-cancel').addEventListener('click', done);
+  overlay.querySelector('#sub-ok').addEventListener('click', function(){ done(); if(opt.onConfirm) opt.onConfirm(); });
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) done(); });
+}
 
 function openConfirm(opt){
   var html = '';
@@ -2891,7 +2916,7 @@ function bindChipClicks(book){
         var cat = btn.getAttribute('data-cat');
         var isDefault = (DEFAULT_CATS[book.mediaType]||[]).indexOf(cat) >= 0;
         if(isDefault){ toast('默认类型不可删除','warn'); return; }
-        openConfirm({
+        openSubConfirm({
           title:'删除类型', body:'确认删除「'+esc(cat)+'」？该类型将从所有同类作品中移除。',
           confirmText:'删除', danger:true,
           onConfirm:function(){
