@@ -3005,15 +3005,19 @@ function load(){
     state.books = seed(); save();
   }
   try{ localStorage.setItem('yueji.initialized','1'); }catch(e){}
-  /* 迁移：补全 mediaType / unit / categories */
-  state.books.forEach(function(b){
-    if(!MEDIA[b.mediaType]) b.mediaType='book';
-    if(UNITS.indexOf(b.unit)<0) b.unit = MEDIA[b.mediaType].unit;
-    if(!Array.isArray(b.categories)){
-      b.categories = b.category ? [b.category] : [];
-      delete b.category;
-    }
-  });
+  /* localStorage 数据丢失但之前已初始化过：尝试从 IndexedDB 备份恢复 */
+  if(initialized && (!Array.isArray(state.books) || state.books.length===0)){
+    loadBackup(function(backup){
+      if(backup && Array.isArray(backup) && backup.length>0){
+        state.books = backup;
+        try{ localStorage.setItem(STORE_KEY, JSON.stringify(state.books)); }catch(e){}
+        migrateBooks();
+        if(typeof renderShelves==='function') renderShelves();
+        console.log('[阅记] 已从 IndexedDB 备份恢复 ' + state.books.length + ' 条数据');
+      }
+    });
+  }
+  migrateBooks();
   /* 迁移：倒数模式 currentPage 从"剩余量"改为"已读量" */
   var migrated = false;
   try{ migrated = localStorage.getItem('yueji.migrated_backward')==='1'; }catch(e){}
@@ -3029,7 +3033,24 @@ function load(){
   }
   try{ state.sidebarCollapsed = localStorage.getItem(SIDEBAR_KEY)==='1'; }catch(e){}
 }
-function save(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state.books)); }catch(e){} }
+function migrateBooks(){
+  state.books.forEach(function(b){
+    if(!MEDIA[b.mediaType]) b.mediaType='book';
+    if(UNITS.indexOf(b.unit)<0) b.unit = MEDIA[b.mediaType].unit;
+    if(!Array.isArray(b.categories)){
+      b.categories = b.category ? [b.category] : [];
+      delete b.category;
+    }
+  });
+}
+function save(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify(state.books));
+  }catch(e){
+    console.warn('[阅记] localStorage 存储失败，数据可能过大');
+  }
+  saveBackup();
+}
 function saveSidebarState(){ try{ localStorage.setItem(SIDEBAR_KEY, state.sidebarCollapsed?'1':'0'); }catch(e){} }
 
 function loadShelfOrder(){
@@ -4428,6 +4449,47 @@ function deleteOriginalImage(key, cb){
 }
 function genImgKey(){
   return 'img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+/* IndexedDB 数据备份（防止 localStorage 丢失） */
+var backupDB = null;
+function openBackupDB(cb){
+  if(backupDB){ cb(backupDB); return; }
+  try {
+    var req = indexedDB.open('yueji_backup', 1);
+    req.onupgradeneeded = function(e){
+      var db = e.target.result;
+      if(!db.objectStoreNames.contains('backup')) db.createObjectStore('backup');
+    };
+    req.onsuccess = function(e){ backupDB = e.target.result; cb(backupDB); };
+    req.onerror = function(){ cb(null); };
+  } catch(e){ cb(null); }
+}
+function saveBackup(){
+  openBackupDB(function(db){
+    if(!db) return;
+    try {
+      var tx = db.transaction('backup', 'readwrite');
+      tx.objectStore('backup').put(JSON.stringify(state.books), 'books');
+    } catch(e){}
+  });
+}
+function loadBackup(cb){
+  openBackupDB(function(db){
+    if(!db){ if(cb) cb(null); return; }
+    try {
+      var tx = db.transaction('backup', 'readonly');
+      var req = tx.objectStore('backup').get('books');
+      req.onsuccess = function(e){
+        if(e.target.result){
+          try { cb(JSON.parse(e.target.result)); }
+          catch(err){ cb(null); }
+        } else { cb(null); }
+      };
+      req.onerror = function(){ cb(null); };
+    } catch(e){ cb(null); }
+  });
+}
 }
 
 /* 图片压缩 */
