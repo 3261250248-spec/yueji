@@ -66,7 +66,8 @@ body{
   text-rendering:optimizeLegibility;
 }
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
-input,select,textarea{font-family:inherit;font-size:16px;color:inherit}
+input,select,textarea{font-family:inherit;font-size:16px;color:inherit;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.field input,.field select,.field textarea{font-size:16px!important}
 ::selection{background:var(--accent2);color:var(--ink)}
 
 /* ---------- Header ---------- */
@@ -6100,6 +6101,20 @@ function reorderBooks(fromEl, toEl, before){
   /* 防止 iOS Safari 下的双击缩放 */
   document.addEventListener('gesturestart', function(e){
     /* 允许双指手势，不阻止 */
+  });
+
+  /* 防止 iOS Safari 输入框聚焦时自动放大页面 */
+  document.addEventListener('focusin', function(e){
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT'){
+      var meta = document.querySelector('meta[name="viewport"]');
+      if(meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    }
+  });
+  document.addEventListener('focusout', function(e){
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT'){
+      var meta = document.querySelector('meta[name="viewport"]');
+      if(meta) meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes');
+    }
   });
 })();
 
