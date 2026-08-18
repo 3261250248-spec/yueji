@@ -5,7 +5,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -47,7 +47,9 @@
   --radius-sm:8px;
 }
 
-*{box-sizing:border-box;margin:0;padding:0}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{touch-action:pan-x pan-y pinch-zoom overscroll-behavior:none}
+button,a,[role="button"]{touch-action:manipulation}
 html,body{height:100%}
 body{
   background:var(--bg);
@@ -157,6 +159,35 @@ main{max-width:1280px;margin:0 auto;padding:30px 28px 90px}
 }
 .shelf-add:hover{background:var(--c);color:#fff}
 .shelf-add svg{width:14px;height:14px}
+.shelf-sort-wrap{position:relative;display:none}
+.shelves-layout.sidebar-collapsed .shelf-sort-wrap{display:block}
+.shelf-sort-btn{
+  display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:9px;
+  font-size:13px;font-weight:600;color:var(--c);
+  background:color-mix(in srgb,var(--c) 11%, transparent);
+  border:1px solid color-mix(in srgb,var(--c) 22%, transparent);
+  transition:all .18s;white-space:nowrap;cursor:pointer;
+}
+.shelf-sort-btn:hover{background:var(--c);color:#fff}
+.shelf-sort-btn svg{width:14px;height:14px}
+.shelf-sort-btn .sort-label{font-size:12px}
+.shelf-sort-menu{
+  position:absolute;top:calc(100% + 6px);right:0;min-width:160px;
+  background:var(--bg3);border:1px solid var(--rule);border-radius:12px;
+  box-shadow:var(--shadow);z-index:50;overflow:hidden;
+  opacity:0;transform:translateY(-6px);pointer-events:none;
+  transition:opacity .15s,transform .15s;
+}
+.shelf-sort-menu.open{opacity:1;transform:translateY(0);pointer-events:auto}
+.shelf-sort-item{
+  display:flex;align-items:center;gap:8px;padding:10px 14px;
+  font-size:13px;color:var(--ink-soft);cursor:pointer;
+  transition:background .12s;border:none;background:none;width:100%;text-align:left;
+}
+.shelf-sort-item:hover{background:var(--bg2)}
+.shelf-sort-item.active{color:var(--c);font-weight:700}
+.shelf-sort-item svg{width:10px;height:10px;margin-left:auto;flex-shrink:0;opacity:0}
+.shelf-sort-item.active svg{opacity:1}
 
 .shelf-body{overflow:hidden;transition:max-height .3s ease,opacity .25s,margin .25s}
 .shelf.collapsed .shelf-body{max-height:0!important;opacity:0;margin-top:-16px}
@@ -174,6 +205,11 @@ main{max-width:1280px;margin:0 auto;padding:30px 28px 90px}
 .card-timer-btn{position:absolute;top:8px;right:8px;z-index:2;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.75);backdrop-filter:blur(4px);color:var(--accent3);border:1px solid var(--rule);cursor:pointer;transition:all .15s;padding:0}
 .card-timer-btn:hover{background:var(--bg3);border-color:var(--accent3);color:var(--accent3)}
 .card-timer-btn svg{width:16px;height:16px}
+.card-pin-btn{position:absolute;top:8px;right:46px;z-index:2;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.75);backdrop-filter:blur(4px);color:var(--muted);border:1px solid var(--rule);cursor:pointer;transition:all .15s;padding:0}
+.card-pin-btn:hover{background:var(--bg3);border-color:var(--reading);color:var(--reading)}
+.card-pin-btn.pinned{background:var(--reading);border-color:var(--reading);color:#fff}
+.card-pin-btn.pinned:hover{background:#6a3f48;border-color:#6a3f48;color:#fff}
+.card-pin-btn svg{width:16px;height:16px}
 .book-cover-wrap{
   position:relative;height:148px;overflow:hidden;
   background:linear-gradient(135deg,var(--accent2),#dcc4b5);
@@ -212,6 +248,7 @@ main{max-width:1280px;margin:0 auto;padding:30px 28px 90px}
 .book-card.has-bg::after{content:'';position:absolute;inset:0;background:var(--bg3);opacity:var(--card-bg-opacity,.85);z-index:0;pointer-events:none;border-radius:inherit}
 .book-card.has-bg > *{position:relative;z-index:1}
 .book-card.has-bg > .card-timer-btn{position:absolute;top:8px;right:8px;z-index:3}
+.book-card.has-bg > .card-pin-btn{position:absolute;top:8px;right:46px;z-index:3}
 .detail-img-bg{position:absolute;bottom:4px;left:4px;padding:2px 8px;border-radius:4px;background:rgba(122,74,84,.8);color:#fff;border:none;cursor:pointer;font-size:10px;font-weight:600;line-height:1.4}
 .detail-img-bg:hover{background:rgba(122,74,84,1)}
 .detail-img-bg.active{background:var(--accent3)}
@@ -703,6 +740,7 @@ body.is-dragging *{cursor:grabbing!important}
   .nav-tab{padding:7px 10px}
   .shelf-head{padding:10px 12px;gap:8px}
   .shelf-add span{display:none}
+  .shelf-sort-btn .sort-label{display:none}
   .shelf-sub{display:none}
   .books-grid{grid-template-columns:1fr;gap:10px}
   .field-row{grid-template-columns:1fr}
@@ -2989,11 +3027,13 @@ var I = {
   filter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
   search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>',
   clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-  timer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6M12 5V2"/></svg>'
+  timer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2M9 2h6M12 5V2"/></svg>',
+  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>',
+  sort:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="13" y2="6"/><line x1="4" y1="12" x2="11" y2="12"/><line x1="4" y1="18" x2="9" y2="18"/><path d="M16 4v16M16 20l3-3M16 20l-3-3"/></svg>'
 };
 
 /* ---------- 状态 ---------- */
-var state = { books:[], view:'shelves', collapsed:{}, year:null, filterCat:null, filterMedia:null, filterShelf:null, filterAuthor:null, searchQ:'', shelfOrder:null, durationPeriod:'day', collapsedCharts:{}, sidebarCollapsed:false };
+var state = { books:[], view:'shelves', collapsed:{}, year:null, filterCat:null, filterMedia:null, filterShelf:null, filterAuthor:null, searchQ:'', shelfOrder:null, durationPeriod:'day', collapsedCharts:{}, sidebarCollapsed:false, shelfSorts:{}, shelfSortDirs:{} };
 var formCats = [];        /* 当前表单可用的类型池（按媒体类型） */
 var currentDraft = null;  /* 当前表单草稿对象 */
 
@@ -3041,6 +3081,8 @@ function migrateBooks(){
       b.categories = b.category ? [b.category] : [];
       delete b.category;
     }
+    if(typeof b.pinned !== 'boolean') b.pinned = false;
+    if(b.shelf==='dropped' && !b.dropDate) b.dropDate = b.addedDate || todayStr();
   });
 }
 function save(){
@@ -3064,6 +3106,17 @@ function loadShelfOrder(){
   state.shelfOrder = SHELF_ORDER.slice();
 }
 function saveShelfOrder(){ try{ localStorage.setItem(SHELF_ORDER_KEY, JSON.stringify(state.shelfOrder)); }catch(e){} }
+
+var SHELF_SORTS_KEY = 'yueji.shelfSorts';
+var SHELF_SORT_DIRS_KEY = 'yueji.shelfSortDirs';
+function loadShelfSorts(){
+  try{ state.shelfSorts = JSON.parse(localStorage.getItem(SHELF_SORTS_KEY)) || {}; }catch(e){ state.shelfSorts = {}; }
+  try{ state.shelfSortDirs = JSON.parse(localStorage.getItem(SHELF_SORT_DIRS_KEY)) || {}; }catch(e){ state.shelfSortDirs = {}; }
+}
+function saveShelfSorts(){
+  try{ localStorage.setItem(SHELF_SORTS_KEY, JSON.stringify(state.shelfSorts)); }catch(e){}
+  try{ localStorage.setItem(SHELF_SORT_DIRS_KEY, JSON.stringify(state.shelfSortDirs)); }catch(e){}
+}
 
 function uid(){ return 'b'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
@@ -3115,7 +3168,7 @@ function seed(){
     { id:uid(), title:'盗梦空间', author:'克里斯托弗·诺兰', cover:'', shelf:'read', mediaType:'film', unit:'分钟', totalPages:148, currentPage:148, progressMode:'forward', categories:['科幻','悬疑'], rating:5, notes:'梦境嵌套，层层惊心。', addedDate:'2026-04-01', startDate:'2026-04-03', finishDate:'2026-04-03' },
     { id:uid(), title:'鬼灭之刃', author:'吾峠呼世晴', cover:'', shelf:'read', mediaType:'manga', unit:'话', totalPages:205, currentPage:205, progressMode:'forward', categories:['热血'], rating:4, notes:'炭治郎的温柔与刀。', addedDate:'2025-11-01', startDate:'2025-11-10', finishDate:'2026-01-20' },
     { id:uid(), title:'围城', author:'钱钟书', cover:'', shelf:'read', mediaType:'book', unit:'页', totalPages:359, currentPage:359, progressMode:'forward', categories:['文学'], rating:4, notes:'城外的人想进去，城里的人想出来。', addedDate:'2025-12-20', startDate:'2026-01-02', finishDate:'2026-01-18' },
-    { id:uid(), title:'某本读不下去的书', author:'佚名', cover:'', shelf:'dropped', mediaType:'book', unit:'页', totalPages:300, currentPage:42, progressMode:'forward', categories:[], rating:0, notes:'节奏太慢，暂时放下。', addedDate:'2026-06-01', startDate:'2026-06-05', finishDate:'' }
+    { id:uid(), title:'某本读不下去的书', author:'佚名', cover:'', shelf:'dropped', mediaType:'book', unit:'页', totalPages:300, currentPage:42, progressMode:'forward', categories:[], rating:0, notes:'节奏太慢，暂时放下。', addedDate:'2026-06-01', startDate:'2026-06-05', finishDate:'', dropDate:'2026-06-10' }
   ];
 }
 
@@ -3131,6 +3184,59 @@ function progress(book){
     ? Math.round(left/(total||1)*100)
     : Math.round(read/total*100);
   return { pct:pct, done:read>=total, read:read, left:left, total:total };
+}
+
+/* ---------- 书架排序 ---------- */
+function getSortOptions(sk){
+  var opts = { 'default':'默认排序', 'title':'首字母排序' };
+  if(sk==='reading') opts['progress'] = '进度排序';
+  if(sk==='read') opts['finishDate'] = '看完时间排序';
+  if(sk==='dropped') opts['dropDate'] = '弃看时间排序';
+  return opts;
+}
+function applyShelfSort(books, sk){
+  var sort = state.shelfSorts[sk] || 'default';
+  var dir = state.shelfSortDirs[sk] || 'desc';
+  var mult = dir === 'asc' ? 1 : -1;
+  if(sort==='default'){
+    if(sk==='reading'){
+      books.sort(function(a,b){
+        if(a.pinned && !b.pinned) return -1;
+        if(!a.pinned && b.pinned) return 1;
+        return 0;
+      });
+    }
+    return;
+  }
+  if(sort==='title'){
+    books.sort(function(a,b){
+      var ta = (a.title||'').toLowerCase(), tb = (b.title||'').toLowerCase();
+      if(ta < tb) return -1 * mult;
+      if(ta > tb) return 1 * mult;
+      return 0;
+    });
+  } else if(sort==='progress'){
+    books.sort(function(a,b){
+      var pa = progress(a).pct, pb = progress(b).pct;
+      if(a.pinned && !b.pinned) return -1;
+      if(!a.pinned && b.pinned) return 1;
+      return (pb - pa) * mult;
+    });
+  } else if(sort==='finishDate'){
+    books.sort(function(a,b){
+      var da = a.finishDate || '', db = b.finishDate || '';
+      if(da < db) return -1 * mult;
+      if(da > db) return 1 * mult;
+      return 0;
+    });
+  } else if(sort==='dropDate'){
+    books.sort(function(a,b){
+      var da = a.dropDate || '', db = b.dropDate || '';
+      if(da < db) return -1 * mult;
+      if(da > db) return 1 * mult;
+      return 0;
+    });
+  }
 }
 
 /* ---------- 渲染：书架视图 ---------- */
@@ -3219,6 +3325,8 @@ function renderShelves(){
   shelvesToShow.forEach(function(sk){
     var s = SHELVES[sk];
     var books = filtered.filter(function(b){ return b.shelf===sk; });
+    /* 应用排序 */
+    applyShelfSort(books, sk);
     var collapsed = state.collapsed[sk];
     html += '<section class="shelf'+(collapsed?' collapsed':'')+'" data-shelf="'+sk+'" style="--c:'+s.color+'">';
     html += '<div class="shelf-head">';
@@ -3226,6 +3334,20 @@ function renderShelves(){
     html += '<div class="shelf-icon" style="--c:'+s.color+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+s.icon+'</svg></div>';
     html += '<div><div class="shelf-title">'+s.name+'</div><div class="shelf-sub">'+s.sub+'</div></div>';
     html += '<span class="shelf-count" style="--c:'+s.color+'">'+books.length+'</span></div>';
+    var sortOptions = getSortOptions(sk);
+    var currentSort = state.shelfSorts[sk] || 'default';
+    var currentDir = state.shelfSortDirs[sk] || 'desc';
+    var currentSortLabel = sortOptions[currentSort] || sortOptions['default'];
+    var dirArrow = currentSort !== 'default' ? (currentDir === 'asc' ? ' ↑' : ' ↓') : '';
+    html += '<div class="shelf-sort-wrap">';
+    html += '<button class="shelf-sort-btn'+(currentSort!=='default'?' active':'')+'" data-act="sort-toggle" data-shelf="'+sk+'" style="--c:'+s.color+'">'+I.sort+'<span class="sort-label">'+currentSortLabel+dirArrow+'</span></button>';
+    html += '<div class="shelf-sort-menu" id="sort-menu-'+sk+'">';
+    Object.keys(sortOptions).forEach(function(key){
+      var showDir = (currentSort===key && key!=='default') ? (currentDir === 'asc' ? ' ↑' : ' ↓') : '';
+      html += '<button class="shelf-sort-item'+(currentSort===key?' active':'')+'" data-act="sort-select" data-shelf="'+sk+'" data-sort="'+key+'" style="--c:'+s.color+'"><span>'+sortOptions[key]+showDir+'</span>'+I.check+'</button>';
+    });
+    html += '</div>';
+    html += '</div>';
     html += '<button class="shelf-add" data-act="add" data-shelf="'+sk+'" style="--c:'+s.color+'">'+I.plus+'<span>添加</span></button>';
     html += '</div>';
     html += '<div class="shelf-body"><div class="books-grid">';
@@ -3274,7 +3396,10 @@ function bookCard(b){
   var bgClass = b.bgImage ? ' has-bg' : '';
   var bgStyle = b.bgImage ? ";--card-bg:url('"+b.bgImage+"');--card-bg-opacity:"+((b.bgOpacity||85)/100) : '';
   var h = '<article class="book-card'+(b.shelf==='dropped'?' is-dropped':'')+bgClass+'" data-id="'+b.id+'" style="--c:'+c+bgStyle+'">';
-  if(b.shelf==='reading') h += '<button class="card-timer-btn" data-act="timer" title="计时">'+I.timer+'</button>';
+  if(b.shelf==='reading'){
+    h += '<button class="card-pin-btn'+(b.pinned?' pinned':'')+'" data-act="pin" title="'+(b.pinned?'取消置顶':'置顶')+'">'+I.pin+'</button>';
+    h += '<button class="card-timer-btn" data-act="timer" title="计时">'+I.timer+'</button>';
+  }
   h += '<div class="book-cover-wrap">'+coverHTML(b);
   h += '<span class="book-media-badge" style="--c:'+m.color+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+m.icon+'</svg>'+m.short+'</span>';
   h += '</div>';
@@ -3335,9 +3460,16 @@ function bookCard(b){
     }
   }
 
-  if(b.shelf==='dropped' && (b.dropReason || b.notes)){
-    var dropR = b.dropReason || b.notes;
-    h += '<div class="book-meta-row"><span class="meta-item editable-drop-reason" data-act="edit-drop-reason" title="点击修改弃看理由" style="color:var(--muted2);cursor:pointer">弃看理由：'+esc(dropR)+'</span></div>';
+  if(b.shelf==='dropped'){
+    h += '<div class="book-meta-row">';
+    if(b.dropDate){
+      h += '<span class="meta-item editable-date" data-act="edit-date" data-field="dropDate" title="点击修改弃看日期">'+I.calendar+fmtDateShort(b.dropDate)+'</span>';
+    }
+    if(b.dropReason || b.notes){
+      var dropR = b.dropReason || b.notes;
+      h += '<span class="meta-item editable-drop-reason" data-act="edit-drop-reason" title="点击修改弃看理由" style="color:var(--muted2);cursor:pointer">弃看理由：'+esc(dropR)+'</span>';
+    }
+    h += '</div>';
   }
 
   /* 操作按钮 */
@@ -3429,6 +3561,31 @@ function bindEvents(){
       }
       return;
     }
+    if(act==='sort-toggle'){
+      var sk3 = t.getAttribute('data-shelf');
+      var menu = document.getElementById('sort-menu-'+sk3);
+      if(!menu) return;
+      var isOpen = menu.classList.contains('open');
+      document.querySelectorAll('.shelf-sort-menu.open').forEach(function(m){ m.classList.remove('open'); });
+      if(!isOpen) menu.classList.add('open');
+      e.stopPropagation();
+      return;
+    }
+    if(act==='sort-select'){
+      var sk4 = t.getAttribute('data-shelf');
+      var sortKey = t.getAttribute('data-sort');
+      if(!state.shelfSorts) state.shelfSorts = {};
+      if(!state.shelfSortDirs) state.shelfSortDirs = {};
+      if(state.shelfSorts[sk4] === sortKey && sortKey !== 'default'){
+        state.shelfSortDirs[sk4] = state.shelfSortDirs[sk4] === 'asc' ? 'desc' : 'asc';
+      } else {
+        state.shelfSorts[sk4] = sortKey;
+        state.shelfSortDirs[sk4] = 'desc';
+      }
+      saveShelfSorts();
+      renderShelves();
+      return;
+    }
 
     if(!id) return;
     var book = find(id); if(!book) return;
@@ -3445,6 +3602,7 @@ function bindEvents(){
     else if(act==='edit-drop-reason'){ editDropReason(book); }
     else if(act==='open-detail'){ openDetailModal(book); }
     else if(act==='timer'){ openTimerModal(book); }
+    else if(act==='pin'){ togglePin(book); }
   });
 
   document.addEventListener('keydown', function(e){
@@ -3477,6 +3635,13 @@ function bindEvents(){
       if(e.key==='Escape'){ searchInput.value=''; state.searchQ=''; renderShelves(); searchInput.blur(); }
     });
   }
+
+  /* 点击页面其他位置关闭排序菜单 */
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.shelf-sort-wrap')){
+      document.querySelectorAll('.shelf-sort-menu.open').forEach(function(m){ m.classList.remove('open'); });
+    }
+  });
 
   /* 长按添加按钮 → 批量添加 */
   var addPressTimer = null;
@@ -3576,6 +3741,7 @@ function quickUpdate(book, card){
 function completeBook(book, manual){
   if(book.shelf!=='reading') return;
   book.shelf='read';
+  book.pinned = false;
   if(book.totalPages>0) book.currentPage = book.totalPages;
   book.progressMode='forward';
   if(!book.finishDate) book.finishDate = todayStr();
@@ -3650,7 +3816,7 @@ function editDropReason(book){
 }
 
 /* ---------- 图片裁剪 ---------- */
-function openCropModal(imgSrc, callback){
+function openCropModal(imgSrc, callback, onCancel){
   var overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:10000;padding:16px';
   var box = document.createElement('div');
@@ -3759,8 +3925,8 @@ function openCropModal(imgSrc, callback){
 
   confirmBtn.addEventListener('click', doCrop);
   fullBtn.addEventListener('click', function(){ callback(imgSrc); closeCrop(); });
-  cancelBtn.addEventListener('click', closeCrop);
-  overlay.addEventListener('click', function(e){ if(e.target===overlay) closeCrop(); });
+  cancelBtn.addEventListener('click', function(){ closeCrop(); if(onCancel) onCancel(); });
+  overlay.addEventListener('click', function(e){ if(e.target===overlay){ closeCrop(); if(onCancel) onCancel(); } });
 }
 
 /* ---------- 作品详情页 ---------- */
@@ -3856,12 +4022,20 @@ function openDetailModal(book){
     html += '</div></div>';
   }
 
-  /* 弃看：弃看理由 */
-  if(book.shelf==='dropped' && (book.dropReason || book.notes)){
-    html += '<div class="detail-section">';
-    html += '<div class="detail-section-title">弃看理由</div>';
-    html += '<div class="detail-drop-reason">'+esc(book.dropReason||book.notes)+'</div>';
-    html += '</div>';
+  /* 弃看：弃看日期 + 弃看理由 */
+  if(book.shelf==='dropped'){
+    if(book.dropDate){
+      html += '<div class="detail-section">';
+      html += '<div class="detail-section-title">'+I.calendar+'弃看日期</div>';
+      html += '<div class="editable-date" data-act="edit-date" data-field="dropDate" style="font-size:14px;color:var(--ink-soft);cursor:pointer" title="点击修改弃看日期">'+fmtDateFull(book.dropDate)+'</div>';
+      html += '</div>';
+    }
+    if(book.dropReason || book.notes){
+      html += '<div class="detail-section">';
+      html += '<div class="detail-section-title">弃看理由</div>';
+      html += '<div class="detail-drop-reason">'+esc(book.dropReason||book.notes)+'</div>';
+      html += '</div>';
+    }
   }
 
   /* 计时记录 */
@@ -4042,6 +4216,8 @@ function openDetailModal(book){
         save(); renderShelves();
         openDetailModal(book);
         toast('背景已设置','success');
+      }, function(){
+        openDetailModal(book);
       });
     });
   });
@@ -4533,14 +4709,16 @@ function dropBook(book){
   html += '</button>';
   html += '</div>';
   html += '<div class="drop-reason"><label>弃看理由（可选）</label><textarea id="drop-reason-input" placeholder="为什么放弃这部作品？" rows="2"></textarea></div>';
+  html += '<div class="field" style="padding:0 4px"><label style="font-size:13px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:6px">弃看日期</label><input id="drop-date-input" type="date" value="'+todayStr()+'" style="width:100%;padding:8px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;color:var(--ink)"></div>';
   html += '</div>';
   html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">取消</button></div>';
   openModal(html, 'confirm');
   document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeModal); });
   document.getElementById('opt-drop').addEventListener('click', function(){
     var reason = document.getElementById('drop-reason-input').value.trim();
+    var dropDate = document.getElementById('drop-date-input').value || todayStr();
     closeModal();
-    book.shelf='dropped'; book.dropReason=reason||''; save(); renderShelves();
+    book.shelf='dropped'; book.pinned=false; book.dropReason=reason||''; book.dropDate=dropDate; save(); renderShelves();
     if(state.view==='stats') renderStats();
     toast('已移入「弃看」','warn');
   });
@@ -4549,7 +4727,20 @@ function dropBook(book){
     confirmDelete(book);
   });
 }
-function moveShelf(book, shelf){ book.shelf=shelf; save(); renderShelves(); if(state.view==='stats') renderStats(); }
+function moveShelf(book, shelf){
+  book.shelf=shelf;
+  if(shelf!=='reading') book.pinned=false;
+  save(); renderShelves();
+  if(state.view==='stats') renderStats();
+}
+
+/* ---------- 置顶 ---------- */
+function togglePin(book){
+  book.pinned = !book.pinned;
+  save();
+  renderShelves();
+  toast(book.pinned ? '已置顶' : '已取消置顶', 'info');
+}
 
 /* ---------- 删除 ---------- */
 function confirmDelete(book){
@@ -4795,6 +4986,7 @@ function dynamicFields(book){
     h += categoryFieldHTML(book);
   }
   if(book.shelf==='dropped'){
+    h += '<div class="field"><label>弃看日期</label><input id="f-dropDate" type="date" value="'+esc(book.dropDate||todayStr())+'"></div>';
     h += '<div class="field"><label>弃看原因 <span class="opt">（选填）</span></label><textarea id="f-notes" placeholder="为何放下这部作品...">'+esc(book.notes||'')+'</textarea></div>';
   }
   if(book.shelf==='reading'){
@@ -4949,6 +5141,7 @@ function captureForm(book){
   book.notes = val('f-notes');
   book.startDate = val('f-startDate');
   book.finishDate = val('f-finishDate');
+  book.dropDate = val('f-dropDate');
   var us = document.getElementById('f-unit');
   if(us) book.unit = us.value;
   var ms = document.querySelector('#mode-seg [data-mode].active');
@@ -4970,10 +5163,11 @@ function collectAndSave(book, mode, orig){
     mediaType:book.mediaType, unit:unitOf(book),
     totalPages:book.totalPages, currentPage:book.currentPage,
     progressMode:book.progressMode, categories:catsOf(book).slice(),
-    notes:book.notes, startDate:book.startDate, finishDate:book.finishDate,
+    notes:book.notes, startDate:book.startDate, finishDate:book.finishDate, dropDate:book.dropDate,
     rating:book.rating, shelf:book.shelf, dropReason:book.shelf==='dropped'?(book.notes||''):(book.dropReason||''),
     images:book.images||[], imgKeys:book.imgKeys||[], timers:book.timers||[], review:book.review||'',
-    bgImage:book.bgImage||'', bgImageSrc:book.bgImageSrc||'', bgOpacity:book.bgOpacity||85
+    bgImage:book.bgImage||'', bgImageSrc:book.bgImageSrc||'', bgOpacity:book.bgOpacity||85,
+    pinned:false
   };
 
   if(mode==='add'){
@@ -4985,7 +5179,7 @@ function collectAndSave(book, mode, orig){
   } else {
     var target = orig || book;
     Object.keys(data).forEach(function(k){ if(k!=='shelf' || mode==='edit') target[k]=data[k]; });
-    if(mode==='start'){ target.shelf='reading'; if(!target.startDate) target.startDate=todayStr(); }
+    if(mode==='start'){ target.shelf='reading'; target.pinned=false; if(!target.startDate) target.startDate=todayStr(); }
     save(); closeModal(); renderShelves();
     if(state.view==='stats') renderStats();
     if(target.shelf==='reading'){
@@ -5485,10 +5679,59 @@ function reorderBooks(fromEl, toEl, before){
   renderShelves();
 }
 
+/* ---------- 禁用双击缩放，保留双指缩放 ---------- */
+(function(){
+  /* 检测是否为双指操作，如果是则不阻止 */
+  var isPinching = false;
+
+  document.addEventListener('touchstart', function(e){
+    if(e.touches.length >= 2){
+      isPinching = true;
+    }
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e){
+    if(e.touches.length < 2){
+      isPinching = false;
+    }
+  }, { passive: true });
+
+  /* 阻止双击缩放：通过检测快速双击但非双指的情况 */
+  var lastTap = 0;
+  var lastTapX = 0;
+  var lastTapY = 0;
+
+  document.addEventListener('touchend', function(e){
+    if(isPinching) return; /* 双指操作不阻止 */
+    if(e.touches.length > 0) return; /* 还有手指在屏幕上，不是tap结束 */
+
+    var now = Date.now();
+    var x = e.changedTouches[0].clientX;
+    var y = e.changedTouches[0].clientY;
+    var delta = now - lastTap;
+    var dist = Math.sqrt(Math.pow(x - lastTapX, 2) + Math.pow(y - lastTapY, 2));
+
+    if(delta < 350 && delta > 0 && dist < 40){
+      /* 这是双击，阻止默认缩放行为 */
+      e.preventDefault();
+    }
+
+    lastTap = now;
+    lastTapX = x;
+    lastTapY = y;
+  }, { passive: false });
+
+  /* 防止 iOS Safari 下的双击缩放 */
+  document.addEventListener('gesturestart', function(e){
+    /* 允许双指手势，不阻止 */
+  });
+})();
+
 /* ---------- 初始化 ---------- */
 try {
   load();
   loadShelfOrder();
+  loadShelfSorts();
   bindEvents();
   initDrag();
   renderShelves();
