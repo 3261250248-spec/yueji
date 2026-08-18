@@ -3288,7 +3288,7 @@ function progress(book){
 
 /* ---------- 书架排序 ---------- */
 function getSortOptions(sk){
-  var opts = { 'default':'默认排序', 'manual':'手动排序', 'title':'首字母排序' };
+  var opts = { 'default':'默认排序', 'title':'首字母排序' };
   if(sk==='reading') opts['progress'] = '进度排序';
   if(sk==='read') opts['finishDate'] = '看完时间排序';
   if(sk==='dropped') opts['dropDate'] = '弃看时间排序';
@@ -3298,8 +3298,8 @@ function applyShelfSort(books, sk){
   var sort = state.shelfSorts[sk] || 'default';
   var dir = state.shelfSortDirs[sk] || 'desc';
   var mult = dir === 'asc' ? 1 : -1;
-  if(sort==='default' || sort==='manual'){
-    if(sort==='default' && sk==='reading'){
+  if(sort==='default'){
+    if(sk==='reading'){
       books.sort(function(a,b){
         if(a.pinned && !b.pinned) return -1;
         if(!a.pinned && b.pinned) return 1;
@@ -3428,7 +3428,7 @@ function renderShelves(){
     /* 应用排序 */
     applyShelfSort(books, sk);
     var collapsed = state.collapsed[sk];
-    var msShelf = (state.multiSelect && state.multiSelectShelf === sk);
+    var msShelf = state.multiSelect;
     html += '<section class="shelf'+(collapsed?' collapsed':'')+(msShelf?' ms-shelf':'')+'" data-shelf="'+sk+'" style="--c:'+s.color+'">';
     html += '<div class="shelf-head">';
     html += '<div class="shelf-toggle" data-act="toggle" data-shelf="'+sk+'">'+I.chevron;
@@ -3610,24 +3610,19 @@ function bindEvents(){
   document.addEventListener('click', function(e){
     var t = e.target.closest('[data-act]');
 
-    /* 多选模式：点击当前书架卡片切换选中，点击其他区域退出 */
+    /* 多选模式：点击任意书架卡片切换选中，点击其他区域退出 */
     if(state.multiSelect){
       var cardEl = e.target.closest('.book-card');
-      var msShelfEl = document.querySelector('.shelf.ms-shelf');
-      var inMsShelf = cardEl && msShelfEl && msShelfEl.contains(cardEl);
-      if(inMsShelf){
+      if(cardEl){
         var bid = cardEl.getAttribute('data-id');
-        var bk = find(bid);
-        if(bk && bk.shelf === state.multiSelectShelf){
-          state.selectedBooks[bid] = !state.selectedBooks[bid];
-          cardEl.classList.toggle('card-selected');
-          updateMultiSelectBar();
-        }
+        state.selectedBooks[bid] = !state.selectedBooks[bid];
+        cardEl.classList.toggle('card-selected');
+        updateMultiSelectBar();
         e.stopPropagation();
         e.preventDefault();
         return;
       }
-      /* 点击非当前书架卡片区域、非底部栏/顶部栏、非弹窗则退出多选 */
+      /* 点击非卡片区域、非底部栏/顶部栏、非弹窗则退出多选 */
       if(!e.target.closest('.ms-action-bar') && !e.target.closest('.ms-topbar') && !e.target.closest('.modal-overlay')){
         exitMultiSelect();
         return;
@@ -3914,22 +3909,20 @@ function updateMultiSelectBar(){
   var titleEl = document.getElementById('ms-topbar-title');
   if(titleEl) titleEl.textContent = '已选择 ' + count + ' 项';
   /* 更新全选按钮状态 */
-  var sk = state.multiSelectShelf;
-  var shelfBooks = state.books.filter(function(b){ return b.shelf === sk; });
-  var allSelected = shelfBooks.length > 0 && shelfBooks.every(function(b){ return state.selectedBooks[b.id]; });
+  var allBooks = state.books;
+  var allSelected = allBooks.length > 0 && allBooks.every(function(b){ return state.selectedBooks[b.id]; });
   var selAllBtn = document.querySelector('.ms-select-all-btn');
   if(selAllBtn){
     selAllBtn.classList.toggle('ms-all-selected', allSelected);
   }
 }
 function msSelectAll(){
-  var sk = state.multiSelectShelf;
-  var shelfBooks = state.books.filter(function(b){ return b.shelf === sk; });
-  var allSelected = shelfBooks.every(function(b){ return state.selectedBooks[b.id]; });
+  var allBooks = state.books;
+  var allSelected = allBooks.every(function(b){ return state.selectedBooks[b.id]; });
   if(allSelected){
-    shelfBooks.forEach(function(b){ state.selectedBooks[b.id] = false; });
+    allBooks.forEach(function(b){ state.selectedBooks[b.id] = false; });
   } else {
-    shelfBooks.forEach(function(b){ state.selectedBooks[b.id] = true; });
+    allBooks.forEach(function(b){ state.selectedBooks[b.id] = true; });
   }
   renderShelves();
   updateMultiSelectBar();
@@ -5839,14 +5832,15 @@ function initDrag(){
     if(shelfHead && !skip){
       return {type:'drag-shelf', el:shelfHead.closest('.shelf')};
     }
-    if(bookCard && !state.multiSelect){
+    if(bookCard){
       var cardShelf = bookCard.closest('.shelf');
       var sk = cardShelf ? cardShelf.getAttribute('data-shelf') : null;
       if(sk){
-        if(state.shelfSorts[sk] === 'manual' && !skip){
+        if(state.multiSelect){
+          /* 多选模式下长按卡片触发拖拽调换顺序 */
           return {type:'drag-book', el:bookCard};
         } else {
-          // 非手动排序：长按任何区域都触发多选
+          /* 非多选模式：长按触发多选 */
           return {type:'multiselect', shelf:sk, card:bookCard};
         }
       }
