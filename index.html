@@ -737,7 +737,7 @@ body.is-dragging *{cursor:grabbing!important}
   .brand-text span{display:none}
   .brand-text h1{font-size:18px}
   .search-box{max-width:110px;padding:0 8px}
-  .search-box input{font-size:12px;padding:7px 0}
+  .search-box input{font-size:16px;padding:7px 0}
   main{padding:12px 10px 70px}
   .nav-tab span{display:none}
   .nav-tab{padding:7px 10px}
@@ -4072,7 +4072,7 @@ function showReviewDialog(book){
     html += '<svg class="review-star'+(i<=(book.rating||0)?' active':'')+'" data-val="'+i+'" viewBox="0 0 24 24" fill="'+(i<=(book.rating||0)?'currentColor':'none')+'" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
   }
   html += '</div>';
-  html += '<textarea id="review-text" placeholder="写下你的感受（选填）" rows="3" style="width:100%;margin-top:14px;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;resize:vertical">'+esc(book.review||'')+'</textarea>';
+  html += '<textarea id="review-text" placeholder="写下你的感受（选填）" rows="3" style="width:100%;margin-top:14px;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:16px;font-family:inherit;resize:vertical">'+esc(book.review||'')+'</textarea>';
   html += '</div>';
   html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">跳过</button>';
   html += '<button class="btn btn-primary" id="review-save">保存评价</button></div>';
@@ -4107,7 +4107,7 @@ function editDropReason(book){
   html += '<div class="modal-head"><div><h3>修改弃看理由</h3></div>';
   html += '<button class="modal-close" data-close="1">'+I.close+'</button></div>';
   html += '<div class="modal-body">';
-  html += '<textarea id="drop-reason-edit" placeholder="为什么放弃这部作品？" rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;resize:vertical">'+esc(cur)+'</textarea>';
+  html += '<textarea id="drop-reason-edit" placeholder="为什么放弃这部作品？" rows="3" style="width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:16px;font-family:inherit;resize:vertical">'+esc(cur)+'</textarea>';
   html += '</div>';
   html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">取消</button>';
   html += '<button class="btn btn-primary" id="drop-reason-save">保存</button></div>';
@@ -5017,7 +5017,7 @@ function dropBook(book){
   html += '</button>';
   html += '</div>';
   html += '<div class="drop-reason"><label>弃看理由（可选）</label><textarea id="drop-reason-input" placeholder="为什么放弃这部作品？" rows="2"></textarea></div>';
-  html += '<div class="field" style="padding:0 4px"><label style="font-size:13px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:6px">弃看日期</label><input id="drop-date-input" type="date" value="'+todayStr()+'" style="width:100%;padding:8px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;color:var(--ink)"></div>';
+  html += '<div class="field" style="padding:0 4px"><label style="font-size:13px;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:6px">弃看日期</label><input id="drop-date-input" type="date" value="'+todayStr()+'" style="width:100%;padding:8px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:16px;font-family:inherit;color:var(--ink)"></div>';
   html += '</div>';
   html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">取消</button></div>';
   openModal(html, 'confirm');
@@ -5295,7 +5295,7 @@ function dynamicFields(book){
     h += '<div class="field"><label>完成日期</label><input id="f-finishDate" type="date" value="'+esc(book.finishDate||todayStr())+'"></div>';
     h += '<div class="field"><label>评分</label><div class="rating-input" id="rating-input">'+ratingButtons(book.rating||0)+'</div></div>';
     h += '</div>';
-    h += '<div class="field"><label>评价 <span class="opt">（选填）</span></label><textarea id="f-review" placeholder="写下你的感受..." rows="2" style="width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;resize:vertical">'+esc(book.review||'')+'</textarea></div>';
+    h += '<div class="field"><label>评价 <span class="opt">（选填）</span></label><textarea id="f-review" placeholder="写下你的感受..." rows="2" style="width:100%;padding:10px 12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:16px;font-family:inherit;resize:vertical">'+esc(book.review||'')+'</textarea></div>';
   }
   /* 类型（多选 chip）—— 想看/在看/已看 都有 */
   if(book.shelf!=='dropped'){
