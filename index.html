@@ -5120,8 +5120,9 @@ function openBatchAddModal(shelfKey){
   html += '<button class="modal-close" data-close="1">'+I.close+'</button></div>';
   html += '<div class="modal-body">';
   html += '<div class="field"><label>批量输入</label>';
-  html += '<textarea id="batch-input" rows="12" style="width:100%;padding:12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;resize:vertical;line-height:1.8" placeholder="每行一部作品，例如：&#10;三体，刘慈欣，312&#10;百年孤独 加西亚·马尔克斯&#10;小王子，无，96&#10;活着"></textarea>';
-  html += '<p style="font-size:12px;color:var(--muted2);margin-top:6px">格式：作品名，作者（选填，填「无」表示没有作者），总'+MEDIA[defaultMedia].unit+'数（选填）</p>';
+  html += '<textarea id="batch-input" rows="12" style="width:100%;padding:12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;resize:vertical;line-height:1.8" placeholder="每行一部作品，例如：&#10;三体，刘慈欣，312，45&#10;百年孤独 加西亚·马尔克斯&#10;小王子，无，96&#10;活着"></textarea>';
+  var u = MEDIA[defaultMedia].unit;
+  html += '<p style="font-size:12px;color:var(--muted2);margin-top:6px">格式：作品名，作者（选填，填「无」表示没有作者），总'+u+'数（选填），当前进度'+u+'数（选填）</p>';
   html += '</div>';
   html += '</div>';
   html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">取消</button>';
@@ -5136,7 +5137,7 @@ function openBatchAddModal(shelfKey){
     lines.forEach(function(line){
       line = line.trim();
       if(!line) return;
-      var parts = line.split(/[，,]/).map(function(s){ return s.trim(); }).filter(function(s){ return s; });
+      var parts = line.split(/[，,\s]+/).map(function(s){ return s.trim(); }).filter(function(s){ return s; });
       if(!parts.length) return;
       var title = parts[0];
       var author = parts.length > 1 ? parts[1] : '';
@@ -5146,10 +5147,15 @@ function openBatchAddModal(shelfKey){
         var n = parseInt(parts[2], 10);
         if(!isNaN(n) && n > 0) totalPages = n;
       }
+      var currentPage = 0;
+      if(parts.length > 3){
+        var cn = parseInt(parts[3], 10);
+        if(!isNaN(cn) && cn >= 0) currentPage = cn;
+      }
       var book = {
         id: uid(), title: title, author: author, cover: '',
         shelf: shelfKey, mediaType: defaultMedia, unit: MEDIA[defaultMedia].unit,
-        totalPages: totalPages, currentPage: 0, progressMode: 'forward',
+        totalPages: totalPages, currentPage: currentPage, progressMode: 'forward',
         categories: [], rating: 0, notes: '', addedDate: todayStr(),
         images: [], imgKeys: [], timers: [], review: ''
       };
