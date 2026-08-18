@@ -3078,13 +3078,13 @@ var SHELVES = {
   read:    { key:'read',    name:'已看', sub:'合上的每一部', color:'#8B9A77',
     icon:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M9 8h6M9 12h4"/>' },
   dropped: { key:'dropped', name:'弃看', sub:'暂别的书架', color:'#A39B91',
-    icon:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v13"/><path d="M9 9l6 6M15 9l-6 6"/>' }
+    icon:'<path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/>' }
 };
 var SHELF_ORDER = ['reading','want','read','dropped'];
 
 /* 作品类型 */
 var MEDIA = {
-  book:  { name:'书籍', short:'书',  unit:'页',  verb:'读', creator:'作者', color:'#98A9BC',
+  book:  { name:'书籍', short:'书',  unit:'章',  verb:'读', creator:'作者', color:'#98A9BC',
     icon:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>' },
   film:  { name:'影视', short:'影',  unit:'分钟', verb:'看', creator:'导演', color:'#7A4A54',
     icon:'<rect x="2" y="3" width="20" height="18" rx="2"/><path d="M7 3v18M17 3v18M2 9h5M2 15h5M17 9h5M17 15h5"/>' },
@@ -3094,7 +3094,7 @@ var MEDIA = {
     icon:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 12h18M12 3v18"/>' }
 };
 var MEDIA_ORDER = ['book','film','anime','manga'];
-var UNITS = ['页','分钟','集','话'];
+var UNITS = ['章','页','分钟','集','话'];
 
 /* 各媒体类型的默认类型池（手动输入过的会自动并入） */
 var DEFAULT_CATS = {
@@ -3110,6 +3110,7 @@ var I = {
   plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>',
   close:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>',
   trash:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M10 11v6M14 11v6"/></svg>',
+  dropX:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9l6 6M15 9l-6 6"/></svg>',
   pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>',
   play:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"/></svg>',
   star:'<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
@@ -3176,6 +3177,7 @@ function load(){
 function migrateBooks(){
   state.books.forEach(function(b){
     if(!MEDIA[b.mediaType]) b.mediaType='book';
+    if(b.mediaType==='book' && (!b.unit || b.unit==='页')) b.unit='章';
     if(UNITS.indexOf(b.unit)<0) b.unit = MEDIA[b.mediaType].unit;
     if(!Array.isArray(b.categories)){
       b.categories = b.category ? [b.category] : [];
@@ -3258,17 +3260,17 @@ function mediaCategories(mediaType){
 /* ---------- 示例数据 ---------- */
 function seed(){
   return [
-    { id:uid(), title:'百年孤独', author:'加西亚·马尔克斯', cover:'', shelf:'want', mediaType:'book', unit:'页', totalPages:0, currentPage:0, progressMode:'forward', categories:['文学'], rating:0, notes:'', addedDate:'2026-08-01', startDate:'', finishDate:'' },
+    { id:uid(), title:'百年孤独', author:'加西亚·马尔克斯', cover:'', shelf:'want', mediaType:'book', unit:'章', totalPages:0, currentPage:0, progressMode:'forward', categories:['文学'], rating:0, notes:'', addedDate:'2026-08-01', startDate:'', finishDate:'' },
     { id:uid(), title:'千与千寻', author:'宫崎骏', cover:'', shelf:'want', mediaType:'anime', unit:'集', totalPages:0, currentPage:0, progressMode:'forward', categories:['奇幻','治愈'], rating:0, notes:'', addedDate:'2026-08-10', startDate:'', finishDate:'' },
-    { id:uid(), title:'活着', author:'余华', cover:'', shelf:'reading', mediaType:'book', unit:'页', totalPages:240, currentPage:128, progressMode:'forward', categories:['文学'], rating:0, notes:'余华笔下的福贵，命运沉浮。', addedDate:'2026-07-20', startDate:'2026-07-22', finishDate:'' },
-    { id:uid(), title:'三体', author:'刘慈欣', cover:'', shelf:'reading', mediaType:'book', unit:'页', totalPages:312, currentPage:234, progressMode:'backward', categories:['科幻'], rating:0, notes:'倒着数剩余页数，越读越轻。', addedDate:'2026-07-28', startDate:'2026-07-30', finishDate:'' },
+    { id:uid(), title:'活着', author:'余华', cover:'', shelf:'reading', mediaType:'book', unit:'章', totalPages:240, currentPage:128, progressMode:'forward', categories:['文学'], rating:0, notes:'余华笔下的福贵，命运沉浮。', addedDate:'2026-07-20', startDate:'2026-07-22', finishDate:'' },
+    { id:uid(), title:'三体', author:'刘慈欣', cover:'', shelf:'reading', mediaType:'book', unit:'章', totalPages:312, currentPage:234, progressMode:'backward', categories:['科幻'], rating:0, notes:'倒着数剩余页数，越读越轻。', addedDate:'2026-07-28', startDate:'2026-07-30', finishDate:'' },
     { id:uid(), title:'星际穿越', author:'克里斯托弗·诺兰', cover:'', shelf:'reading', mediaType:'film', unit:'分钟', totalPages:169, currentPage:74, progressMode:'forward', categories:['科幻','剧情'], rating:0, notes:'', addedDate:'2026-08-05', startDate:'2026-08-06', finishDate:'' },
     { id:uid(), title:'进击的巨人', author:'WIT/MAPPA', cover:'', shelf:'reading', mediaType:'anime', unit:'集', totalPages:88, currentPage:76, progressMode:'backward', categories:['热血','奇幻'], rating:0, notes:'', addedDate:'2026-07-15', startDate:'2026-07-16', finishDate:'' },
-    { id:uid(), title:'小王子', author:'圣埃克苏佩里', cover:'', shelf:'read', mediaType:'book', unit:'页', totalPages:96, currentPage:96, progressMode:'forward', categories:['文学'], rating:5, notes:'重要的东西用眼睛是看不见的。', addedDate:'2026-02-10', startDate:'2026-03-01', finishDate:'2026-03-05' },
+    { id:uid(), title:'小王子', author:'圣埃克苏佩里', cover:'', shelf:'read', mediaType:'book', unit:'章', totalPages:96, currentPage:96, progressMode:'forward', categories:['文学'], rating:5, notes:'重要的东西用眼睛是看不见的。', addedDate:'2026-02-10', startDate:'2026-03-01', finishDate:'2026-03-05' },
     { id:uid(), title:'盗梦空间', author:'克里斯托弗·诺兰', cover:'', shelf:'read', mediaType:'film', unit:'分钟', totalPages:148, currentPage:148, progressMode:'forward', categories:['科幻','悬疑'], rating:5, notes:'梦境嵌套，层层惊心。', addedDate:'2026-04-01', startDate:'2026-04-03', finishDate:'2026-04-03' },
     { id:uid(), title:'鬼灭之刃', author:'吾峠呼世晴', cover:'', shelf:'read', mediaType:'manga', unit:'话', totalPages:205, currentPage:205, progressMode:'forward', categories:['热血'], rating:4, notes:'炭治郎的温柔与刀。', addedDate:'2025-11-01', startDate:'2025-11-10', finishDate:'2026-01-20' },
-    { id:uid(), title:'围城', author:'钱钟书', cover:'', shelf:'read', mediaType:'book', unit:'页', totalPages:359, currentPage:359, progressMode:'forward', categories:['文学'], rating:4, notes:'城外的人想进去，城里的人想出来。', addedDate:'2025-12-20', startDate:'2026-01-02', finishDate:'2026-01-18' },
-    { id:uid(), title:'某本读不下去的书', author:'佚名', cover:'', shelf:'dropped', mediaType:'book', unit:'页', totalPages:300, currentPage:42, progressMode:'forward', categories:[], rating:0, notes:'节奏太慢，暂时放下。', addedDate:'2026-06-01', startDate:'2026-06-05', finishDate:'', dropDate:'2026-06-10' }
+    { id:uid(), title:'围城', author:'钱钟书', cover:'', shelf:'read', mediaType:'book', unit:'章', totalPages:359, currentPage:359, progressMode:'forward', categories:['文学'], rating:4, notes:'城外的人想进去，城里的人想出来。', addedDate:'2025-12-20', startDate:'2026-01-02', finishDate:'2026-01-18' },
+    { id:uid(), title:'某本读不下去的书', author:'佚名', cover:'', shelf:'dropped', mediaType:'book', unit:'章', totalPages:300, currentPage:42, progressMode:'forward', categories:[], rating:0, notes:'节奏太慢，暂时放下。', addedDate:'2026-06-01', startDate:'2026-06-05', finishDate:'', dropDate:'2026-06-10' }
   ];
 }
 
@@ -5068,9 +5070,6 @@ function confirmDelete(book){
 function openModal(html, cls){
   var root = document.getElementById('modal-root');
   root.innerHTML = '<div class="modal-overlay" id="overlay"><div class="modal'+(cls?' '+cls:'')+'">'+html+'</div></div>';
-  document.getElementById('overlay').addEventListener('click', function(e){
-    if(e.target===this) closeModal();
-  });
 }
 function closeModal(){ document.getElementById('modal-root').innerHTML=''; }
 function openSubConfirm(opt){
@@ -5090,7 +5089,6 @@ function openSubConfirm(opt){
   function done(){ document.body.removeChild(overlay); }
   overlay.querySelector('#sub-cancel').addEventListener('click', done);
   overlay.querySelector('#sub-ok').addEventListener('click', function(){ done(); if(opt.onConfirm) opt.onConfirm(); });
-  overlay.addEventListener('click', function(e){ if(e.target===overlay) done(); });
 }
 
 function openConfirm(opt){
@@ -5122,8 +5120,8 @@ function openBatchAddModal(shelfKey){
   html += '<button class="modal-close" data-close="1">'+I.close+'</button></div>';
   html += '<div class="modal-body">';
   html += '<div class="field"><label>批量输入</label>';
-  html += '<textarea id="batch-input" rows="12" style="width:100%;padding:12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;resize:vertical;line-height:1.8" placeholder="每行一部作品，例如：&#10;三体，刘慈欣&#10;百年孤独 加西亚·马尔克斯&#10;小王子"></textarea>';
-  html += '<p style="font-size:12px;color:var(--muted2);margin-top:6px">「，」或空格前为作品名称，后为作者（选填）</p>';
+  html += '<textarea id="batch-input" rows="12" style="width:100%;padding:12px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);font-size:14px;font-family:inherit;resize:vertical;line-height:1.8" placeholder="每行一部作品，例如：&#10;三体，刘慈欣，312&#10;百年孤独 加西亚·马尔克斯&#10;小王子，无，96&#10;活着"></textarea>';
+  html += '<p style="font-size:12px;color:var(--muted2);margin-top:6px">格式：作品名，作者（选填，填「无」表示没有作者），总'+MEDIA[defaultMedia].unit+'数（选填）</p>';
   html += '</div>';
   html += '</div>';
   html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">取消</button>';
@@ -5138,14 +5136,20 @@ function openBatchAddModal(shelfKey){
     lines.forEach(function(line){
       line = line.trim();
       if(!line) return;
-      var title, author;
-      var m = line.match(/^([^，,\s]+)[，,\s]+(.+)$/);
-      if(m){ title = m[1].trim(); author = m[2].trim(); }
-      else { title = line; author = ''; }
+      var parts = line.split(/[，,]/).map(function(s){ return s.trim(); }).filter(function(s){ return s; });
+      if(!parts.length) return;
+      var title = parts[0];
+      var author = parts.length > 1 ? parts[1] : '';
+      if(author === '无') author = '';
+      var totalPages = 0;
+      if(parts.length > 2){
+        var n = parseInt(parts[2], 10);
+        if(!isNaN(n) && n > 0) totalPages = n;
+      }
       var book = {
         id: uid(), title: title, author: author, cover: '',
         shelf: shelfKey, mediaType: defaultMedia, unit: MEDIA[defaultMedia].unit,
-        totalPages: 0, currentPage: 0, progressMode: 'forward',
+        totalPages: totalPages, currentPage: 0, progressMode: 'forward',
         categories: [], rating: 0, notes: '', addedDate: todayStr(),
         images: [], imgKeys: [], timers: [], review: ''
       };
