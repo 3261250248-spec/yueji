@@ -50,6 +50,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{touch-action:pan-x pan-y pinch-zoom overscroll-behavior:none}
 button,a,[role="button"]{touch-action:manipulation}
+.book-card,.book-card *{touch-action:pan-y!important}
 html,body{height:100%}
 body{
   background:var(--bg);
@@ -200,6 +201,7 @@ main{max-width:1280px;margin:0 auto;padding:30px 28px 90px}
   background:var(--bg3);border:1px solid var(--rule);border-radius:var(--radius);
   overflow:hidden;display:flex;flex-direction:column;position:relative;
   box-shadow:var(--shadow-sm);transition:transform .2s,box-shadow .2s;
+  touch-action:pan-y;
 }
 .book-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
 .card-timer-btn{position:absolute;top:8px;right:8px;z-index:2;width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.75);backdrop-filter:blur(4px);color:var(--accent3);border:1px solid var(--rule);cursor:pointer;transition:all .15s;padding:0}
@@ -2693,6 +2695,99 @@ body.is-dragging *{cursor:grabbing!important}
   --bg-bg-brand-old: #32f08c;
   --gradient-brand: linear-gradient(90deg, #3ee1a3 0%, #32f08c 36%, #60f2bd 71.63%, #a0fde7 100%);
 }
+
+/* ---------- 多选模式（网易云风格） ---------- */
+/* 顶部栏 */
+.ms-topbar{
+  position:fixed;top:0;left:0;right:0;z-index:9999;
+  background:var(--bg3);border-bottom:1px solid var(--rule);
+  padding:12px 16px;padding-top:calc(12px + env(safe-area-inset-top,0px));
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 2px 12px rgba(0,0,0,0.06);
+  animation:msSlideDown .25s ease;
+}
+@keyframes msSlideDown{from{transform:translateY(-100%)}to{transform:translateY(0)}}
+.ms-topbar-title{font-size:16px;font-weight:600;color:var(--ink)}
+.ms-topbar-close{
+  width:32px;height:32px;border:none;background:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--ink-soft);border-radius:8px;transition:all .15s;
+}
+.ms-topbar-close:hover{background:var(--bg);color:var(--ink)}
+.ms-topbar-close svg{width:20px;height:20px}
+
+/* 卡片选中框（左侧） */
+.shelves-layout.ms-active .shelf.ms-shelf .book-card{cursor:pointer}
+.shelves-layout.ms-active .shelf.ms-shelf .book-card .book-actions{display:none}
+.shelves-layout.ms-active .shelf.ms-shelf .book-card .card-pin-btn,
+.shelves-layout.ms-active .shelf.ms-shelf .book-card .card-timer-btn{display:none}
+.ms-checkbox{
+  position:absolute;top:8px;left:8px;width:22px;height:22px;z-index:6;
+  border-radius:50%;border:2px solid rgba(255,255,255,.7);
+  background:rgba(0,0,0,.25);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .18s ease;box-sizing:border-box;pointer-events:none;
+}
+.shelves-layout.ms-active .shelf.ms-shelf .book-card.card-selected .ms-checkbox{
+  background:var(--c);border-color:var(--c);
+}
+.ms-checkbox svg{width:14px;height:14px;color:#fff;opacity:0;transition:opacity .15s}
+.shelves-layout.ms-active .shelf.ms-shelf .book-card.card-selected .ms-checkbox svg{opacity:1}
+.shelves-layout.ms-active .shelf.ms-shelf .book-card.card-selected{
+  opacity:.6;
+}
+
+/* 底部操作栏 */
+.ms-action-bar{
+  position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  background:var(--bg3);border-top:1px solid var(--rule);
+  padding:8px 16px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));
+  display:flex;align-items:center;justify-content:space-between;
+  box-shadow:0 -2px 12px rgba(0,0,0,0.06);
+  animation:msSlideUp .25s ease;
+}
+@keyframes msSlideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.ms-bar-left{display:flex;align-items:center;gap:8px}
+.ms-select-all-btn{
+  display:flex;align-items:center;gap:8px;border:none;background:none;
+  cursor:pointer;font-family:inherit;font-size:14px;color:var(--ink);
+  padding:6px 4px;
+}
+.ms-select-all-circle{
+  width:22px;height:22px;border-radius:50%;border:2px solid var(--ink-soft);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;box-sizing:border-box;
+}
+.ms-select-all-btn.ms-all-selected .ms-select-all-circle{
+  background:var(--c);border-color:var(--c);
+}
+.ms-select-all-circle svg{width:14px;height:14px;color:#fff;opacity:0;transition:opacity .15s}
+.ms-select-all-btn.ms-all-selected .ms-select-all-circle svg{opacity:1}
+.ms-bar-right{display:flex;align-items:center;gap:20px}
+.ms-btn{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  border:none;background:none;cursor:pointer;
+  font-family:inherit;font-size:11px;color:var(--ink-soft);
+  transition:color .15s;padding:4px 6px;
+}
+.ms-btn svg{width:22px;height:22px;transition:color .15s}
+.ms-btn:hover{color:var(--ink)}
+.ms-btn-move svg{color:var(--accent2)}
+.ms-btn-move:hover svg{color:var(--accent2)}
+.ms-btn-delete svg{color:var(--accent3)}
+.ms-btn-delete:hover svg{color:var(--accent3)}
+.shelves-layout.ms-active .shelves-main{padding-bottom:72px;padding-top:56px}
+/* 移动选项弹窗 */
+.move-options{display:flex;flex-direction:column;gap:10px;margin-top:12px}
+.move-option{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;
+  border-radius:12px;border:1px solid var(--rule);
+  background:var(--bg);cursor:pointer;transition:all .18s;
+  font-family:inherit;font-size:15px;font-weight:600;color:var(--ink);
+}
+.move-option:hover{border-color:var(--c);background:color-mix(in srgb,var(--c) 8%,var(--bg))}
+.move-option .opt-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--c) 15%,transparent);color:var(--c)}
+.move-option .opt-icon svg{width:20px;height:20px}
 </style><style id="trae-panel-enter-style">
         @keyframes trae-panel-enter {
           from { opacity: 0; transform: scale(0.95); }
@@ -3033,7 +3128,7 @@ var I = {
 };
 
 /* ---------- 状态 ---------- */
-var state = { books:[], view:'shelves', collapsed:{}, year:null, filterCat:null, filterMedia:null, filterShelf:null, filterAuthor:null, searchQ:'', shelfOrder:null, durationPeriod:'day', collapsedCharts:{}, sidebarCollapsed:false, shelfSorts:{}, shelfSortDirs:{} };
+var state = { books:[], view:'shelves', collapsed:{}, year:null, filterCat:null, filterMedia:null, filterShelf:null, filterAuthor:null, searchQ:'', shelfOrder:null, durationPeriod:'day', collapsedCharts:{}, sidebarCollapsed:false, shelfSorts:{}, shelfSortDirs:{}, multiSelect:false, multiSelectShelf:null, selectedBooks:{} };
 var formCats = [];        /* 当前表单可用的类型池（按媒体类型） */
 var currentDraft = null;  /* 当前表单草稿对象 */
 
@@ -3188,7 +3283,7 @@ function progress(book){
 
 /* ---------- 书架排序 ---------- */
 function getSortOptions(sk){
-  var opts = { 'default':'默认排序', 'title':'首字母排序' };
+  var opts = { 'default':'默认排序', 'manual':'手动排序', 'title':'首字母排序' };
   if(sk==='reading') opts['progress'] = '进度排序';
   if(sk==='read') opts['finishDate'] = '看完时间排序';
   if(sk==='dropped') opts['dropDate'] = '弃看时间排序';
@@ -3198,8 +3293,8 @@ function applyShelfSort(books, sk){
   var sort = state.shelfSorts[sk] || 'default';
   var dir = state.shelfSortDirs[sk] || 'desc';
   var mult = dir === 'asc' ? 1 : -1;
-  if(sort==='default'){
-    if(sk==='reading'){
+  if(sort==='default' || sort==='manual'){
+    if(sort==='default' && sk==='reading'){
       books.sort(function(a,b){
         if(a.pinned && !b.pinned) return -1;
         if(!a.pinned && b.pinned) return 1;
@@ -3245,7 +3340,7 @@ function renderShelves(){
   var html = '';
 
   /* 左侧媒体分类（树状）+ 右侧内容 */
-  html += '<div class="shelves-layout'+(state.sidebarCollapsed?' sidebar-collapsed':'')+'">';
+  html += '<div class="shelves-layout'+(state.sidebarCollapsed?' sidebar-collapsed':'')+(state.multiSelect?' ms-active':'')+'">';
   html += '<aside class="media-sidebar">';
   html += '<div class="ms-header">分类</div>';
   /* 全部 */
@@ -3328,7 +3423,8 @@ function renderShelves(){
     /* 应用排序 */
     applyShelfSort(books, sk);
     var collapsed = state.collapsed[sk];
-    html += '<section class="shelf'+(collapsed?' collapsed':'')+'" data-shelf="'+sk+'" style="--c:'+s.color+'">';
+    var msShelf = (state.multiSelect && state.multiSelectShelf === sk);
+    html += '<section class="shelf'+(collapsed?' collapsed':'')+(msShelf?' ms-shelf':'')+'" data-shelf="'+sk+'" style="--c:'+s.color+'">';
     html += '<div class="shelf-head">';
     html += '<div class="shelf-toggle" data-act="toggle" data-shelf="'+sk+'">'+I.chevron;
     html += '<div class="shelf-icon" style="--c:'+s.color+'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+s.icon+'</svg></div>';
@@ -3395,7 +3491,11 @@ function bookCard(b){
   var m = mediaOf(b);
   var bgClass = b.bgImage ? ' has-bg' : '';
   var bgStyle = b.bgImage ? ";--card-bg:url('"+b.bgImage+"');--card-bg-opacity:"+((b.bgOpacity||85)/100) : '';
-  var h = '<article class="book-card'+(b.shelf==='dropped'?' is-dropped':'')+bgClass+'" data-id="'+b.id+'" style="--c:'+c+bgStyle+'">';
+  var msSelected = (state.multiSelect && state.selectedBooks[b.id]) ? ' card-selected' : '';
+  var h = '<article class="book-card'+(b.shelf==='dropped'?' is-dropped':'')+bgClass+msSelected+'" data-id="'+b.id+'" style="--c:'+c+bgStyle+'">';
+  if(state.multiSelect){
+    h += '<span class="ms-checkbox">'+I.check+'</span>';
+  }
   if(b.shelf==='reading'){
     h += '<button class="card-pin-btn'+(b.pinned?' pinned':'')+'" data-act="pin" title="'+(b.pinned?'取消置顶':'置顶')+'">'+I.pin+'</button>';
     h += '<button class="card-timer-btn" data-act="timer" title="计时">'+I.timer+'</button>';
@@ -3504,6 +3604,31 @@ function actBtn(cls,act,label,icon){
 function bindEvents(){
   document.addEventListener('click', function(e){
     var t = e.target.closest('[data-act]');
+
+    /* 多选模式：点击当前书架卡片切换选中，点击其他区域退出 */
+    if(state.multiSelect){
+      var cardEl = e.target.closest('.book-card');
+      var msShelfEl = document.querySelector('.shelf.ms-shelf');
+      var inMsShelf = cardEl && msShelfEl && msShelfEl.contains(cardEl);
+      if(inMsShelf){
+        var bid = cardEl.getAttribute('data-id');
+        var bk = find(bid);
+        if(bk && bk.shelf === state.multiSelectShelf){
+          state.selectedBooks[bid] = !state.selectedBooks[bid];
+          cardEl.classList.toggle('card-selected');
+          updateMultiSelectBar();
+        }
+        e.stopPropagation();
+        e.preventDefault();
+        return;
+      }
+      /* 点击非当前书架卡片区域、非底部栏/顶部栏、非弹窗则退出多选 */
+      if(!e.target.closest('.ms-action-bar') && !e.target.closest('.ms-topbar') && !e.target.closest('.modal-overlay')){
+        exitMultiSelect();
+        return;
+      }
+    }
+
     if(!t) return;
     var act = t.getAttribute('data-act');
     var card = t.closest('.book-card');
@@ -3611,7 +3736,7 @@ function bindEvents(){
       var book = find(card.getAttribute('data-id'));
       if(book) quickUpdate(book, card);
     }
-    if(e.key==='Escape'){ if(document.getElementById('timer-stop')) return; closeModal(); }
+    if(e.key==='Escape'){ if(state.multiSelect){ exitMultiSelect(); return; } if(document.getElementById('timer-stop')) return; closeModal(); }
   });
 
   document.querySelectorAll('.nav-tab').forEach(function(b){
@@ -3703,12 +3828,195 @@ function bindEvents(){
       }
     }
   }, true);
+
+  /* 底部操作栏 & 顶部栏点击 */
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-ms-act]');
+    if(!btn) return;
+    var act = btn.getAttribute('data-ms-act');
+    if(act==='cancel'){
+      exitMultiSelect();
+    } else if(act==='select-all'){
+      msSelectAll();
+    } else if(act==='move'){
+      var ids = getSelectedIds();
+      if(ids.length===0){ toast('请先选择作品','info'); return; }
+      openMoveModal(ids);
+    } else if(act==='delete'){
+      var ids2 = getSelectedIds();
+      if(ids2.length===0){ toast('请先选择作品','info'); return; }
+      batchDropOrDelete(ids2);
+    }
+  });
 }
 
 function find(id){ return state.books.filter(function(b){return b.id===id;})[0]; }
 
+/* ---------- 多选模式 ---------- */
+function toggleMultiSelect(sk){
+  if(state.multiSelect && state.multiSelectShelf === sk){
+    exitMultiSelect();
+  } else {
+    state.multiSelect = true;
+    state.multiSelectShelf = sk;
+    state.selectedBooks = {};
+    renderShelves();
+    showMultiSelectBar();
+  }
+}
+function exitMultiSelect(){
+  state.multiSelect = false;
+  state.multiSelectShelf = null;
+  state.selectedBooks = {};
+  hideMultiSelectBar();
+  renderShelves();
+}
+function getSelectedIds(){
+  return Object.keys(state.selectedBooks).filter(function(id){ return state.selectedBooks[id]; });
+}
+function showMultiSelectBar(){
+  hideMultiSelectBar();
+  /* 顶部栏 */
+  var topbar = document.createElement('div');
+  topbar.id = 'ms-topbar';
+  topbar.className = 'ms-topbar';
+  topbar.innerHTML = '<span class="ms-topbar-title" id="ms-topbar-title">已选择 0 项</span>'
+    + '<button class="ms-topbar-close" data-ms-act="cancel">'+I.close+'</button>';
+  document.body.appendChild(topbar);
+  /* 底部操作栏 */
+  var bar = document.createElement('div');
+  bar.id = 'ms-action-bar';
+  bar.className = 'ms-action-bar';
+  var moveIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>';
+  bar.innerHTML = '<div class="ms-bar-left">'
+    + '<button class="ms-select-all-btn" data-ms-act="select-all">'
+    + '<span class="ms-select-all-circle">'+I.check+'</span>'
+    + '<span>全选</span></button></div>'
+    + '<div class="ms-bar-right">'
+    + '<button class="ms-btn ms-btn-move" data-ms-act="move">'+moveIcon+'<span>移动</span></button>'
+    + '<button class="ms-btn ms-btn-delete" data-ms-act="delete">'+I.trash+'<span>删除</span></button>'
+    + '</div>';
+  document.body.appendChild(bar);
+}
+function hideMultiSelectBar(){
+  var bar = document.getElementById('ms-action-bar');
+  if(bar) bar.remove();
+  var topbar = document.getElementById('ms-topbar');
+  if(topbar) topbar.remove();
+}
+function updateMultiSelectBar(){
+  var count = getSelectedIds().length;
+  var titleEl = document.getElementById('ms-topbar-title');
+  if(titleEl) titleEl.textContent = '已选择 ' + count + ' 项';
+  /* 更新全选按钮状态 */
+  var sk = state.multiSelectShelf;
+  var shelfBooks = state.books.filter(function(b){ return b.shelf === sk; });
+  var allSelected = shelfBooks.length > 0 && shelfBooks.every(function(b){ return state.selectedBooks[b.id]; });
+  var selAllBtn = document.querySelector('.ms-select-all-btn');
+  if(selAllBtn){
+    selAllBtn.classList.toggle('ms-all-selected', allSelected);
+  }
+}
+function msSelectAll(){
+  var sk = state.multiSelectShelf;
+  var shelfBooks = state.books.filter(function(b){ return b.shelf === sk; });
+  var allSelected = shelfBooks.every(function(b){ return state.selectedBooks[b.id]; });
+  if(allSelected){
+    shelfBooks.forEach(function(b){ state.selectedBooks[b.id] = false; });
+  } else {
+    shelfBooks.forEach(function(b){ state.selectedBooks[b.id] = true; });
+  }
+  renderShelves();
+  updateMultiSelectBar();
+}
+function openMoveModal(bookIds){
+  var html = '';
+  html += '<div class="modal-head"><div><h3>移动到</h3></div>';
+  html += '<button class="modal-close" data-close="1">'+I.close+'</button></div>';
+  html += '<div class="modal-body">';
+  html += '<p style="font-size:14.5px">将选中的 '+bookIds.length+' 部作品移动到：</p>';
+  html += '<div class="move-options">';
+  MEDIA_ORDER.forEach(function(mk){
+    var md = MEDIA[mk];
+    html += '<button class="move-option" data-media-target="'+mk+'" style="--c:'+md.color+'">';
+    html += '<div class="opt-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+md.icon+'</svg></div>';
+    html += '<div class="opt-title">'+md.name+'</div>';
+    html += '</button>';
+  });
+  html += '</div>';
+  html += '</div>';
+  html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">取消</button></div>';
+  openModal(html, 'confirm');
+  document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeModal); });
+  document.querySelectorAll('[data-media-target]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var targetMedia = b.getAttribute('data-media-target');
+      bookIds.forEach(function(id){
+        var book = find(id);
+        if(book) book.mediaType = targetMedia;
+      });
+      save();
+      closeModal();
+      exitMultiSelect();
+      toast('已移动 '+bookIds.length+' 部作品到「'+MEDIA[targetMedia].name+'」','info');
+    });
+  });
+}
+function batchDropOrDelete(bookIds){
+  var html = '';
+  html += '<div class="modal-head"><div><h3>处理选中的作品？</h3></div>';
+  html += '<button class="modal-close" data-close="1">'+I.close+'</button></div>';
+  html += '<div class="modal-body">';
+  html += '<p style="font-size:14.5px;line-height:1.55">共选中 '+bookIds.length+' 部作品，如何处理？</p>';
+  html += '<div class="drop-options">';
+  html += '<button class="drop-option" id="opt-drop" style="--c:var(--dropped)">';
+  html += '<div class="opt-icon">'+I.trash+'</div>';
+  html += '<div><div class="opt-title">移入弃看</div><div class="opt-desc">保留记录，可随时重新想看</div></div>';
+  html += '</button>';
+  html += '<button class="drop-option" id="opt-delete" style="--c:var(--accent3)">';
+  html += '<div class="opt-icon">'+I.trash+'</div>';
+  html += '<div><div class="opt-title">永久删除</div><div class="opt-desc">从所有书架中删除，不可恢复</div></div>';
+  html += '</button>';
+  html += '</div>';
+  html += '</div>';
+  html += '<div class="modal-foot"><button class="btn btn-ghost" data-close="1">取消</button></div>';
+  openModal(html, 'confirm');
+  document.querySelectorAll('[data-close]').forEach(function(b){ b.addEventListener('click', closeModal); });
+  document.getElementById('opt-drop').addEventListener('click', function(){
+    var dropDate = todayStr();
+    bookIds.forEach(function(id){
+      var book = find(id);
+      if(book){
+        book.shelf='dropped'; book.pinned=false; book.dropReason=book.dropReason||''; book.dropDate=dropDate;
+      }
+    });
+    save();
+    closeModal();
+    exitMultiSelect();
+    if(state.view==='stats') renderStats();
+    toast('已移入「弃看」','warn');
+  });
+  document.getElementById('opt-delete').addEventListener('click', function(){
+    closeModal();
+    bookIds.forEach(function(id){
+      var book = find(id);
+      if(book && book.imgKeys){
+        book.imgKeys.forEach(function(k){ if(k) deleteOriginalImage(k, function(){}); });
+      }
+    });
+    var idSet = {};
+    bookIds.forEach(function(id){ idSet[id]=true; });
+    state.books = state.books.filter(function(b){ return !idSet[b.id]; });
+    save();
+    exitMultiSelect();
+    if(state.view==='stats') renderStats();
+    toast('已永久删除 '+bookIds.length+' 部作品','warn');
+  });
+}
+
 /* ---------- 视图切换 ---------- */
 function setView(v){
+  if(state.multiSelect) exitMultiSelect();
   state.view = v;
   document.querySelectorAll('.nav-tab').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-view')===v); });
   document.querySelectorAll('.view').forEach(function(el){ el.classList.toggle('active', el.id==='view-'+v); });
@@ -5501,61 +5809,120 @@ function renderStats(){
   });
 }
 
-/* ---------- 长按拖拽排序 ---------- */
+/* ---------- 长按拖拽排序 & 多选 ---------- */
 var drag = null;
 var suppressClick = false;
+var _lpTimer = null;
+var _lpStartX = 0, _lpStartY = 0;
+var _lpFired = false;
+var _lpCtx = null;
 
 function initDrag(){
-  var pressTimer = null;
-  var startX = 0, startY = 0;
+  function getPoint(e){
+    if(e.touches && e.touches[0]) return {x:e.touches[0].clientX, y:e.touches[0].clientY};
+    if(e.changedTouches && e.changedTouches[0]) return {x:e.changedTouches[0].clientX, y:e.changedTouches[0].clientY};
+    return {x:e.clientX, y:e.clientY};
+  }
 
-  document.addEventListener('pointerdown', function(e){
-    if(e.button!==undefined && e.button!==0) return;
-    if(drag) return;
+  function resolveContext(target){
+    if(!target || !target.closest) return null;
+    // 真正需要跳过的交互元素：输入框、下拉菜单、可编辑日期输入
+    var skip = target.closest('input, select, textarea, .progress-input');
+    var shelfHead = target.closest('.shelf-head');
+    var bookCard = target.closest('.book-card');
 
-    var shelfHead = e.target.closest('.shelf-head');
-    var bookCard = e.target.closest('.book-card');
-    var skip = e.target.closest('input, select, textarea, button[data-act], .cat-pill, .editable-date, .progress-quick, .progress-block, .act-btn, [data-act="edit-review"], [data-act="edit-drop-reason"], [data-act="open-detail"]');
-
-    var target = null;
     if(shelfHead && !skip){
-      target = { type:'shelf', el: shelfHead.closest('.shelf') };
-    } else if(bookCard && !skip){
-      target = { type:'book', el: bookCard };
+      return {type:'drag-shelf', el:shelfHead.closest('.shelf')};
     }
-    if(!target) return;
+    if(bookCard && !state.multiSelect){
+      var cardShelf = bookCard.closest('.shelf');
+      var sk = cardShelf ? cardShelf.getAttribute('data-shelf') : null;
+      if(sk){
+        if(state.shelfSorts[sk] === 'manual' && !skip){
+          return {type:'drag-book', el:bookCard};
+        } else {
+          // 非手动排序：长按任何区域都触发多选
+          return {type:'multiselect', shelf:sk, card:bookCard};
+        }
+      }
+    }
+    return null;
+  }
 
-    startX = e.clientX; startY = e.clientY;
-    var t = target;
-    pressTimer = setTimeout(function(){
-      pressTimer = null;
-      startDrag(t.type, t.el, e);
+  function onDown(e){
+    if(drag) return;
+    if(_lpTimer) return;
+    // 鼠标只响应左键
+    if(e.pointerType==='mouse' && e.button!==0) return;
+
+    var target = e.target;
+    var ctx = resolveContext(target);
+    if(!ctx) return;
+
+    var p = getPoint(e);
+    _lpStartX = p.x; _lpStartY = p.y;
+    _lpFired = false;
+    _lpCtx = ctx;
+
+    _lpTimer = setTimeout(function(){
+      _lpTimer = null;
+      _lpFired = true;
+      if(ctx.type==='drag-shelf' || ctx.type==='drag-book'){
+        startDrag(ctx.type==='drag-shelf'?'shelf':'book', ctx.el, e);
+      } else if(ctx.type==='multiselect'){
+        var bid = ctx.card.getAttribute('data-id');
+        state.multiSelect = true;
+        state.multiSelectShelf = ctx.shelf;
+        state.selectedBooks = {};
+        if(bid) state.selectedBooks[bid] = true;
+        renderShelves();
+        showMultiSelectBar();
+        updateMultiSelectBar();
+        if(navigator.vibrate) navigator.vibrate(30);
+      }
     }, 450);
-  });
+  }
 
-  document.addEventListener('pointermove', function(e){
-    if(pressTimer){
-      if(Math.abs(e.clientX-startX)>8 || Math.abs(e.clientY-startY)>8){
-        clearTimeout(pressTimer); pressTimer = null;
+  function onMove(e){
+    if(_lpTimer){
+      var p = getPoint(e);
+      if(Math.abs(p.x-_lpStartX)>12 || Math.abs(p.y-_lpStartY)>12){
+        clearTimeout(_lpTimer); _lpTimer = null; _lpCtx = null;
       }
     }
     if(drag){ moveDrag(e); }
-  });
+  }
 
-  document.addEventListener('pointerup', function(e){
-    if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; }
+  function onUp(e){
+    if(_lpTimer){ clearTimeout(_lpTimer); _lpTimer = null; }
+    if(_lpFired){
+      _lpFired = false;
+      e.preventDefault();
+      suppressClick = true;
+      setTimeout(function(){ suppressClick = false; }, 300);
+    }
+    _lpCtx = null;
     if(drag){ endDrag(e); }
-  });
+  }
 
-  document.addEventListener('pointercancel', function(){
-    if(pressTimer){ clearTimeout(pressTimer); pressTimer = null; }
+  function onCancel(){
+    if(_lpTimer){ clearTimeout(_lpTimer); _lpTimer = null; }
+    _lpCtx = null; _lpFired = false;
     if(drag){ cancelDrag(); }
-  });
+  }
 
+  // 使用 pointer events 统一处理（同时支持鼠标和触摸）
+  document.addEventListener('pointerdown', onDown);
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+  document.addEventListener('pointercancel', onCancel);
+
+  // 触摸设备上额外阻止touchmove干扰（仅在拖拽时）
   document.addEventListener('touchmove', function(e){
     if(drag){ e.preventDefault(); }
-  }, { passive:false });
+  }, {passive:false});
 
+  // 长按触发后抑制后续click
   document.addEventListener('click', function(e){
     if(suppressClick){ suppressClick = false; e.stopPropagation(); e.preventDefault(); }
   }, true);
